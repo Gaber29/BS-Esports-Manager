@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brawl Esports Manager</title>
+<style>
+body{
+    font-family: Arial;
+    background:#111;
+    color:white;
+    margin:0;
+    padding:20px;
+}
+h1,h2{
+    color:#ffcc00;
+}
+.card{
+    background:#222;
+    padding:15px;
+    margin:10px 0;
+    border-radius:12px;
+}
+button{
+    padding:8px 14px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ffcc00;
+    font-weight:bold;
+}
+.player{
+    display:flex;
+    justify-content:space-between;
+    padding:8px;
+    border-bottom:1px solid #444;
+}
+</style>
+</head>
+<body>
+
+<h1>Brawl Stars Esports Manager</h1>
+
+<div class="card">
+    <h2>Организация</h2>
+    <p>Название: <span id="teamName">Nova Esports</span></p>
+    <p>Бюджет: $<span id="money">100000</span></p>
+</div>
+
+<div class="card">
+    <h2>Свободные игроки</h2>
+    <div id="market"></div>
+</div>
+
+<div class="card">
+    <h2>Твой состав</h2>
+    <div id="roster"></div>
+</div>
+
+<div class="card">
+    <h2>Турнир</h2>
+    <p id="tournamentName">Monthly Qualifier</p>
+    <button onclick="playTournament()">Сыграть турнир</button>
+    <p id="result"></p>
+</div>
+
+<script>
+let money = 100000;
+
+let freeAgents = [
+    {name:"Achapi", power:94, price:45000},
+    {name:"Symantec", power:92, price:42000},
+    {name:"Sitetampo", power:90, price:38000},
+    {name:"Bobby", power:88, price:30000},
+    {name:"Patchy", power:87, price:28000},
+    {name:"Tensai", power:91, price:40000},
+    {name:"SecondBest", power:89, price:31000}
+];
+
+let roster = [];
+
+let enemyTeams = [
+    {name:"ZETA", power:270},
+    {name:"SK Gaming", power:260},
+    {name:"Tribe Gaming", power:255},
+    {name:"HMBLE", power:250}
+];
+
+function render() {
+    document.getElementById("money").innerText = money;
+
+    let marketHTML = "";
+    freeAgents.forEach((p,index)=>{
+        marketHTML += `
+        <div class="player">
+            <span>${p.name} | Сила: ${p.power} | $${p.price}</span>
+            <button onclick="buyPlayer(${index})">Купить</button>
+        </div>`;
+    });
+    document.getElementById("market").innerHTML = marketHTML;
+
+    let rosterHTML = "";
+    roster.forEach(p=>{
+        rosterHTML += `<div class="player">${p.name} | Сила: ${p.power}</div>`;
+    });
+    document.getElementById("roster").innerHTML = rosterHTML;
+}
+
+function buyPlayer(index){
+    let player = freeAgents[index];
+
+    if(roster.length >= 3){
+        alert("Состав уже полный");
+        return;
+    }
+
+    if(money < player.price){
+        alert("Недостаточно денег");
+        return;
+    }
+
+    money -= player.price;
+    roster.push(player);
+    freeAgents.splice(index,1);
+
+    render();
+}
+
+function playTournament(){
+    if(roster.length < 3){
+        alert("Нужно 3 игрока");
+        return;
+    }
+
+    let teamPower = roster.reduce((sum,p)=>sum+p.power,0);
+    let enemy = enemyTeams[Math.floor(Math.random()*enemyTeams.length)];
+
+    let chance = teamPower / (teamPower + enemy.power);
+
+    if(Math.random() < chance){
+        let reward = 25000;
+        money += reward;
+        document.getElementById("result").innerText =
+            `Победа против ${enemy.name}! Ты заработал $${reward}`;
+    } else {
+        document.getElementById("result").innerText =
+            `Поражение от ${enemy.name}. Твоей команде надо тренироваться.`;
+    }
+
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>
