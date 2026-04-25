@@ -2,155 +2,354 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brawl Esports Manager</title>
+<title>Brawl Esports Manager PRO</title>
+
 <style>
 body{
-    font-family: Arial;
-    background:#111;
+    background:#0f172a;
     color:white;
-    margin:0;
+    font-family:Arial;
     padding:20px;
 }
-h1,h2{
-    color:#ffcc00;
-}
 .card{
-    background:#222;
+    background:#1e293b;
     padding:15px;
-    margin:10px 0;
     border-radius:12px;
+    margin:10px 0;
 }
 button{
-    padding:8px 14px;
+    background:#facc15;
     border:none;
+    padding:8px;
     border-radius:8px;
     cursor:pointer;
-    background:#ffcc00;
-    font-weight:bold;
-}
-.player{
-    display:flex;
-    justify-content:space-between;
-    padding:8px;
-    border-bottom:1px solid #444;
 }
 </style>
 </head>
+
 <body>
 
-<h1>Brawl Stars Esports Manager</h1>
+<h1>Brawl Esports Manager PRO</h1>
 
 <div class="card">
-    <h2>Организация</h2>
-    <p>Название: <span id="teamName">Nova Esports</span></p>
-    <p>Бюджет: $<span id="money">100000</span></p>
+<h2>Создание организации</h2>
+<input id="teamInput" placeholder="Название команды">
+<select id="regionSelect">
+<option>Europe</option>
+<option>NA</option>
+<option>Asia</option>
+<option>LATAM</option>
+</select>
+<button onclick="createTeam()">Создать</button>
+</div>
+
+<div id="game" style="display:none">
+
+<div class="card">
+<h2>Инфо</h2>
+<p id="teamInfo"></p>
+<p id="money"></p>
+<p id="morale"></p>
 </div>
 
 <div class="card">
-    <h2>Свободные игроки</h2>
-    <div id="market"></div>
+<h2>Состав</h2>
+<div id="roster"></div>
 </div>
 
 <div class="card">
-    <h2>Твой состав</h2>
-    <div id="roster"></div>
+<h2>Трансферный рынок</h2>
+<div id="market"></div>
 </div>
 
 <div class="card">
-    <h2>Турнир</h2>
-    <p id="tournamentName">Monthly Qualifier</p>
-    <button onclick="playTournament()">Сыграть турнир</button>
-    <p id="result"></p>
+<h2>Персонал</h2>
+<button onclick="hireCoach()">Нанять тренера</button>
+<button onclick="hireAnalyst()">Нанять аналитика</button>
+<p id="staff"></p>
+</div>
+
+<div class="card">
+<h2>Тренировка</h2>
+<button onclick="train()">Тренироваться</button>
+</div>
+
+<div class="card">
+<h2>Турниры</h2>
+<button onclick="nextStage()">Следующий этап</button>
+<p id="tournament"></p>
+</div>
+
 </div>
 
 <script>
-let money = 100000;
 
-let freeAgents = [
-    {name:"Achapi", power:94, price:45000},
-    {name:"Symantec", power:92, price:42000},
-    {name:"Sitetampo", power:90, price:38000},
-    {name:"Bobby", power:88, price:30000},
-    {name:"Patchy", power:87, price:28000},
-    {name:"Tensai", power:91, price:40000},
-    {name:"SecondBest", power:89, price:31000}
+// --- ОСНОВА ---
+
+let game = {
+    team:null,
+    money:200000,
+    morale:70,
+    coach:null,
+    analyst:null,
+    day:1,
+    stageIndex:0
+};
+
+// --- ЭТАПЫ СЕЗОНА ---
+const stages = [
+    "Monthly Qualifier",
+    "Monthly Final",
+    "Brawl Cup",
+    "LCQ",
+    "World Finals"
 ];
 
-let roster = [];
+// --- РЕГИОНЫ ---
+const regions = {
+    Europe: 80,
+    NA: 75,
+    Asia: 78,
+    LATAM: 70
+};
 
-let enemyTeams = [
-    {name:"ZETA", power:270},
-    {name:"SK Gaming", power:260},
-    {name:"Tribe Gaming", power:255},
-    {name:"HMBLE", power:250}
-];
-
-function render() {
-    document.getElementById("money").innerText = money;
-
-    let marketHTML = "";
-    freeAgents.forEach((p,index)=>{
-        marketHTML += `
-        <div class="player">
-            <span>${p.name} | Сила: ${p.power} | $${p.price}</span>
-            <button onclick="buyPlayer(${index})">Купить</button>
-        </div>`;
-    });
-    document.getElementById("market").innerHTML = marketHTML;
-
-    let rosterHTML = "";
-    roster.forEach(p=>{
-        rosterHTML += `<div class="player">${p.name} | Сила: ${p.power}</div>`;
-    });
-    document.getElementById("roster").innerHTML = rosterHTML;
+// --- ГЕНЕРАЦИЯ ИГРОКОВ ---
+function randomPlayer(name){
+    return {
+        name,
+        power: Math.floor(70+Math.random()*25),
+        age: Math.floor(16+Math.random()*10),
+        contract: Math.floor(30+Math.random()*100),
+        morale: 70
+    }
 }
 
-function buyPlayer(index){
-    let player = freeAgents[index];
+// --- СПИСОК ИГРОКОВ ---
+let freeAgents = [
+    "Achapi","Symantec","Tensai","Bobby",
+    "Patchy","SecondBest","Sitetampo",
+    "Cori","Drage","Moya","Lenain"
+].map(n=>randomPlayer(n));
 
-    if(roster.length >= 3){
-        alert("Состав уже полный");
+// --- СОЗДАНИЕ КОМАНД ---
+let teams = [];
+
+function generateTeams(){
+    let names = ["ZETA","SK","Tribe","HMBLE","NAVI"];
+    names.forEach(n=>{
+        let team = {
+            name:n,
+            region:Object.keys(regions)[Math.floor(Math.random()*4)],
+            roster:[
+                randomPlayer("Player1"),
+                randomPlayer("Player2"),
+                randomPlayer("Player3")
+            ]
+        };
+        teams.push(team);
+    });
+}
+
+generateTeams();
+
+// --- СОЗДАНИЕ ИГРОКА ---
+function createTeam(){
+    let name = document.getElementById("teamInput").value;
+    let region = document.getElementById("regionSelect").value;
+
+    game.team = {
+        name,
+        region,
+        roster:[]
+    };
+
+    document.getElementById("game").style.display="block";
+    render();
+}
+
+// --- ПОКУПКА ---
+function buyPlayer(i){
+    let p = freeAgents[i];
+
+    if(game.team.roster.length>=3){
+        alert("Состав полный");
         return;
     }
 
-    if(money < player.price){
-        alert("Недостаточно денег");
+    if(game.money < p.contract){
+        alert("Нет денег");
         return;
     }
 
-    money -= player.price;
-    roster.push(player);
-    freeAgents.splice(index,1);
+    game.money -= p.contract;
+    game.team.roster.push(p);
+    freeAgents.splice(i,1);
 
     render();
 }
 
-function playTournament(){
-    if(roster.length < 3){
+// --- ТРЕНИРОВКА ---
+function train(){
+    game.team.roster.forEach(p=>{
+        p.power += Math.random()*2;
+        p.morale += 2;
+    });
+
+    game.morale += 2;
+    render();
+}
+
+// --- ПЕРСОНАЛ ---
+function hireCoach(){
+    if(game.coach) return;
+
+    game.coach = {
+        boost:5
+    };
+
+    game.money -= 50000;
+    render();
+}
+
+function hireAnalyst(){
+    if(game.analyst) return;
+
+    game.analyst = {
+        boost:5
+    };
+
+    game.money -= 40000;
+    render();
+}
+
+// --- СИЛА КОМАНДЫ ---
+function calcPower(team){
+    let power = team.roster.reduce((sum,p)=>sum+p.power,0);
+
+    if(game.coach) power += game.coach.boost;
+    if(game.analyst) power += game.analyst.boost;
+
+    return power;
+}
+
+// --- СИМУЛЯЦИЯ МАТЧА ---
+function match(a,b){
+    let p1 = calcPower(a);
+    let p2 = calcPower(b);
+
+    let chance = p1/(p1+p2);
+
+    return Math.random()<chance;
+}
+
+// --- СЕТКА ТУРНИРА ---
+function runTournament(){
+    let participants = [...teams, game.team];
+
+    // случайный порядок
+    participants.sort(()=>Math.random()-0.5);
+
+    while(participants.length > 1){
+        let next = [];
+
+        for(let i=0;i<participants.length;i+=2){
+            let a = participants[i];
+            let b = participants[i+1];
+
+            if(!b){
+                next.push(a);
+                continue;
+            }
+
+            let winner = match(a,b) ? a : b;
+            next.push(winner);
+        }
+
+        participants = next;
+    }
+
+    return participants[0];
+}
+
+// --- СЛЕДУЮЩИЙ ЭТАП ---
+function nextStage(){
+    if(game.team.roster.length<3){
         alert("Нужно 3 игрока");
         return;
     }
 
-    let teamPower = roster.reduce((sum,p)=>sum+p.power,0);
-    let enemy = enemyTeams[Math.floor(Math.random()*enemyTeams.length)];
+    let stage = stages[game.stageIndex];
 
-    let chance = teamPower / (teamPower + enemy.power);
+    let winner = runTournament();
 
-    if(Math.random() < chance){
-        let reward = 25000;
-        money += reward;
-        document.getElementById("result").innerText =
-            `Победа против ${enemy.name}! Ты заработал $${reward}`;
+    if(winner === game.team){
+        game.money += 50000;
+        game.morale += 5;
+        alert("Ты выиграл "+stage);
     } else {
-        document.getElementById("result").innerText =
-            `Поражение от ${enemy.name}. Твоей команде надо тренироваться.`;
+        game.morale -= 5;
+        alert("Ты проиграл "+stage);
+    }
+
+    game.stageIndex++;
+
+    if(game.stageIndex >= stages.length){
+        game.stageIndex = 0;
+        game.day++;
+        simulateWorld();
+        alert("Новый сезон!");
     }
 
     render();
 }
 
-render();
+// --- СИМУЛЯЦИЯ МИРА ---
+function simulateWorld(){
+    teams.forEach(t=>{
+        t.roster.forEach(p=>{
+            p.power += Math.random()*2;
+        });
+    });
+}
+
+// --- ОТРИСОВКА ---
+function render(){
+
+    document.getElementById("teamInfo").innerText =
+        game.team.name+" | "+game.team.region;
+
+    document.getElementById("money").innerText =
+        "Деньги: "+game.money;
+
+    document.getElementById("morale").innerText =
+        "Мораль: "+game.morale;
+
+    document.getElementById("tournament").innerText =
+        stages[game.stageIndex];
+
+    // состав
+    let r = "";
+    game.team.roster.forEach(p=>{
+        r += `<div>${p.name} | ${p.power.toFixed(0)} | возраст ${p.age} | контракт ${p.contract}</div>`;
+    });
+    document.getElementById("roster").innerHTML = r;
+
+    // рынок
+    let m = "";
+    freeAgents.forEach((p,i)=>{
+        m += `<div>
+        ${p.name} | ${p.power} | $${p.contract}
+        <button onclick="buyPlayer(${i})">Купить</button>
+        </div>`;
+    });
+    document.getElementById("market").innerHTML = m;
+
+    // персонал
+    document.getElementById("staff").innerText =
+        "Тренер: "+(game.coach?"Да":"Нет")+
+        " | Аналитик: "+(game.analyst?"Да":"Нет");
+}
+
 </script>
 
 </body>
