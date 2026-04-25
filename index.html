@@ -1,356 +1,60 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Brawl Esports Manager PRO</title>
-
-<style>
-body{
-    background:#0f172a;
-    color:white;
-    font-family:Arial;
-    padding:20px;
-}
-.card{
-    background:#1e293b;
-    padding:15px;
-    border-radius:12px;
-    margin:10px 0;
-}
-button{
-    background:#facc15;
-    border:none;
-    padding:8px;
-    border-radius:8px;
-    cursor:pointer;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esports Manager: PARALLAX</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
-<h1>Brawl Esports Manager PRO</h1>
-
-<div class="card">
-<h2>Создание организации</h2>
-<input id="teamInput" placeholder="Название команды">
-<select id="regionSelect">
-<option>Europe</option>
-<option>NA</option>
-<option>Asia</option>
-<option>LATAM</option>
-</select>
-<button onclick="createTeam()">Создать</button>
-</div>
-
-<div id="game" style="display:none">
-
-<div class="card">
-<h2>Инфо</h2>
-<p id="teamInfo"></p>
-<p id="money"></p>
-<p id="morale"></p>
-</div>
-
-<div class="card">
-<h2>Состав</h2>
-<div id="roster"></div>
-</div>
-
-<div class="card">
-<h2>Трансферный рынок</h2>
-<div id="market"></div>
-</div>
-
-<div class="card">
-<h2>Персонал</h2>
-<button onclick="hireCoach()">Нанять тренера</button>
-<button onclick="hireAnalyst()">Нанять аналитика</button>
-<p id="staff"></p>
-</div>
-
-<div class="card">
-<h2>Тренировка</h2>
-<button onclick="train()">Тренироваться</button>
-</div>
-
-<div class="card">
-<h2>Турниры</h2>
-<button onclick="nextStage()">Следующий этап</button>
-<p id="tournament"></p>
-</div>
-
-</div>
-
-<script>
-
-// --- ОСНОВА ---
-
-let game = {
-    team:null,
-    money:200000,
-    morale:70,
-    coach:null,
-    analyst:null,
-    day:1,
-    stageIndex:0
-};
-
-// --- ЭТАПЫ СЕЗОНА ---
-const stages = [
-    "Monthly Qualifier",
-    "Monthly Final",
-    "Brawl Cup",
-    "LCQ",
-    "World Finals"
-];
-
-// --- РЕГИОНЫ ---
-const regions = {
-    Europe: 80,
-    NA: 75,
-    Asia: 78,
-    LATAM: 70
-};
-
-// --- ГЕНЕРАЦИЯ ИГРОКОВ ---
-function randomPlayer(name){
-    return {
-        name,
-        power: Math.floor(70+Math.random()*25),
-        age: Math.floor(16+Math.random()*10),
-        contract: Math.floor(30+Math.random()*100),
-        morale: 70
-    }
-}
-
-// --- СПИСОК ИГРОКОВ ---
-let freeAgents = [
-    "Achapi","Symantec","Tensai","Bobby",
-    "Patchy","SecondBest","Sitetampo",
-    "Cori","Drage","Moya","Lenain"
-].map(n=>randomPlayer(n));
-
-// --- СОЗДАНИЕ КОМАНД ---
-let teams = [];
-
-function generateTeams(){
-    let names = ["ZETA","SK","Tribe","HMBLE","NAVI"];
-    names.forEach(n=>{
-        let team = {
-            name:n,
-            region:Object.keys(regions)[Math.floor(Math.random()*4)],
-            roster:[
-                randomPlayer("Player1"),
-                randomPlayer("Player2"),
-                randomPlayer("Player3")
-            ]
-        };
-        teams.push(team);
-    });
-}
-
-generateTeams();
-
-// --- СОЗДАНИЕ ИГРОКА ---
-function createTeam(){
-    let name = document.getElementById("teamInput").value;
-    let region = document.getElementById("regionSelect").value;
-
-    game.team = {
-        name,
-        region,
-        roster:[]
-    };
-
-    document.getElementById("game").style.display="block";
-    render();
-}
-
-// --- ПОКУПКА ---
-function buyPlayer(i){
-    let p = freeAgents[i];
-
-    if(game.team.roster.length>=3){
-        alert("Состав полный");
-        return;
-    }
-
-    if(game.money < p.contract){
-        alert("Нет денег");
-        return;
-    }
-
-    game.money -= p.contract;
-    game.team.roster.push(p);
-    freeAgents.splice(i,1);
-
-    render();
-}
-
-// --- ТРЕНИРОВКА ---
-function train(){
-    game.team.roster.forEach(p=>{
-        p.power += Math.random()*2;
-        p.morale += 2;
-    });
-
-    game.morale += 2;
-    render();
-}
-
-// --- ПЕРСОНАЛ ---
-function hireCoach(){
-    if(game.coach) return;
-
-    game.coach = {
-        boost:5
-    };
-
-    game.money -= 50000;
-    render();
-}
-
-function hireAnalyst(){
-    if(game.analyst) return;
-
-    game.analyst = {
-        boost:5
-    };
-
-    game.money -= 40000;
-    render();
-}
-
-// --- СИЛА КОМАНДЫ ---
-function calcPower(team){
-    let power = team.roster.reduce((sum,p)=>sum+p.power,0);
-
-    if(game.coach) power += game.coach.boost;
-    if(game.analyst) power += game.analyst.boost;
-
-    return power;
-}
-
-// --- СИМУЛЯЦИЯ МАТЧА ---
-function match(a,b){
-    let p1 = calcPower(a);
-    let p2 = calcPower(b);
-
-    let chance = p1/(p1+p2);
-
-    return Math.random()<chance;
-}
-
-// --- СЕТКА ТУРНИРА ---
-function runTournament(){
-    let participants = [...teams, game.team];
-
-    // случайный порядок
-    participants.sort(()=>Math.random()-0.5);
-
-    while(participants.length > 1){
-        let next = [];
-
-        for(let i=0;i<participants.length;i+=2){
-            let a = participants[i];
-            let b = participants[i+1];
-
-            if(!b){
-                next.push(a);
-                continue;
-            }
-
-            let winner = match(a,b) ? a : b;
-            next.push(winner);
-        }
-
-        participants = next;
-    }
-
-    return participants[0];
-}
-
-// --- СЛЕДУЮЩИЙ ЭТАП ---
-function nextStage(){
-    if(game.team.roster.length<3){
-        alert("Нужно 3 игрока");
-        return;
-    }
-
-    let stage = stages[game.stageIndex];
-
-    let winner = runTournament();
-
-    if(winner === game.team){
-        game.money += 50000;
-        game.morale += 5;
-        alert("Ты выиграл "+stage);
-    } else {
-        game.morale -= 5;
-        alert("Ты проиграл "+stage);
-    }
-
-    game.stageIndex++;
-
-    if(game.stageIndex >= stages.length){
-        game.stageIndex = 0;
-        game.day++;
-        simulateWorld();
-        alert("Новый сезон!");
-    }
-
-    render();
-}
-
-// --- СИМУЛЯЦИЯ МИРА ---
-function simulateWorld(){
-    teams.forEach(t=>{
-        t.roster.forEach(p=>{
-            p.power += Math.random()*2;
-        });
-    });
-}
-
-// --- ОТРИСОВКА ---
-function render(){
-
-    document.getElementById("teamInfo").innerText =
-        game.team.name+" | "+game.team.region;
-
-    document.getElementById("money").innerText =
-        "Деньги: "+game.money;
-
-    document.getElementById("morale").innerText =
-        "Мораль: "+game.morale;
-
-    document.getElementById("tournament").innerText =
-        stages[game.stageIndex];
-
-    // состав
-    let r = "";
-    game.team.roster.forEach(p=>{
-        r += `<div>${p.name} | ${p.power.toFixed(0)} | возраст ${p.age} | контракт ${p.contract}</div>`;
-    });
-    document.getElementById("roster").innerHTML = r;
-
-    // рынок
-    let m = "";
-    freeAgents.forEach((p,i)=>{
-        m += `<div>
-        ${p.name} | ${p.power} | $${p.contract}
-        <button onclick="buyPlayer(${i})">Купить</button>
-        </div>`;
-    });
-    document.getElementById("market").innerHTML = m;
-
-    // персонал
-    document.getElementById("staff").innerText =
-        "Тренер: "+(game.coach?"Да":"Нет")+
-        " | Аналитик: "+(game.analyst?"Да":"Нет");
-}
-
-</script>
-
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">PARALLAX<span class="accent">.MNG</span></div>
+            <nav class="menu">
+                <button onclick="uiManager.showScreen('dashboard')">Дашборд</button>
+                <button onclick="uiManager.showScreen('roster')">Состав</button>
+                <button onclick="uiManager.showScreen('market')">Трансферы</button>
+                <button onclick="uiManager.showScreen('tournaments')">Турниры</button>
+            </nav>
+            <div class="controls">
+                <button class="btn-advance" onclick="gameEngine.advanceDay()">Следующий день ⏭️</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="date" id="ui-date">День 1 / Месяц 1 / 2026</div>
+                <div class="stats">
+                    <span class="budget" id="ui-budget">Бюджет: $50,000</span>
+                    <span class="points" id="ui-points">BSC Points: 0</span>
+                </div>
+            </header>
+
+            <section id="screen-dashboard" class="screen active">
+                <h2>Главная панель</h2>
+                <div class="news-feed" id="news-feed">
+                    <p>Добро пожаловать в менеджмент. Соберите состав из 3 игроков для начала сезона.</p>
+                </div>
+            </section>
+
+            <section id="screen-roster" class="screen">
+                <h2>Состав команды</h2>
+                <div id="roster-list" class="grid-list"></div>
+            </section>
+
+            <section id="screen-market" class="screen">
+                <h2>Свободные агенты</h2>
+                <div id="market-list" class="grid-list"></div>
+            </section>
+            
+            <section id="screen-tournaments" class="screen">
+                <h2>Рейтинг команд</h2>
+                <div id="standings-list" class="grid-list"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
+
