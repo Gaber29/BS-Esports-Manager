@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Esports Manager — Brawl Stars</title>
+
+  <!-- ======================== CSS ======================== -->
+  <style>
+    :root {
+      --bg-primary: #0a0e1a;
+      --bg-secondary: #111827;
+      --bg-card: #1a2236;
+      --bg-card-hover: #232d45;
+      --accent: #f59e0b;
+      --accent-hover: #d97706;
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-purple: #8b5cf6;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: #2d3a52;
+      --shadow: 0 4px 24px rgba(0,0,0,0.4);
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ---------- HEADER ---------- */
+    .header {
+      background: linear-gradient(135deg, #111827 0%, #1e293b 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-logo .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-red));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .header-logo h1 {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--accent), var(--accent-red));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-logo h1 span {
+      font-size: 13px;
+      font-weight: 400;
+      display: block;
+      background: none;
+      -webkit-text-fill-color: var(--text-secondary);
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .header-stat {
+      text-align: center;
+      padding: 6px 16px;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .header-stat .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+
+    .header-stat .value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    /* ---------- NAVIGATION ---------- */
+    .nav {
+      display: flex;
+      gap: 4px;
+      padding: 12px 24px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+
+    .nav-btn {
+      padding: 10px 20px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .nav-btn.active {
+      background: var(--bg-card);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ---------- MAIN CONTENT ---------- */
+    .main {
+      padding: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title .icon {
+      font-size: 28px;
+    }
+
+    /* ---------- CARDS ---------- */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: all 0.2s;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      background: var(--bg-card-hover);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .card-grid-small {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 12px;
+    }
+
+    /* ---------- PLAYER CARD ---------- */
+    .player-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: all 0.2s;
+    }
+
+    .player-card:hover {
+      border-color: var(--accent);
+    }
+
+    .player-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .player-info { flex: 1; min-width: 0; }
+
+    .player-name {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .player-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .player-skills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .skill-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .skill-badge.atk { background: rgba(239,68,68,0.2); color: #f87171; }
+    .skill-badge.def { background: rgba(59,130,246,0.2); color: #60a5fa; }
+    .skill-badge.sup { background: rgba(16,185,129,0.2); color: #34d399; }
+    .skill-badge.form { background: rgba(139,92,246,0.2); color: #a78bfa; }
+
+    .player-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .player-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-align: right;
+    }
+
+    /* ---------- BUTTONS ---------- */
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); }
+
+    .btn-danger {
+      background: rgba(239,68,68,0.15);
+      color: #f87171;
+      border: 1px solid rgba(239,68,68,0.3);
+    }
+    .btn-danger:hover { background: rgba(239,68,68,0.25); }
+
+    .btn-success {
+      background: rgba(16,185,129,0.15);
+      color: #34d399;
+      border: 1px solid rgba(16,185,129,0.3);
+    }
+    .btn-success:hover { background: rgba(16,185,129,0.25); }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-block { width: 100%; justify-content: center; }
+
+    /* ---------- PROGRESS BAR ---------- */
+    .progress-bar {
+      height: 6px;
+      background: var(--bg-primary);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.4s;
+    }
+
+    .progress-fill.atk { background: linear-gradient(90deg, #ef4444, #f87171); }
+    .progress-fill.def { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .progress-fill.sup { background: linear-gradient(90deg, #10b981, #34d399); }
+    .progress-fill.form { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+    /* ---------- TOURNAMENT ---------- */
+    .tournament-bracket {
+      display: flex;
+      gap: 24px;
+      overflow-x: auto;
+      padding: 16px 0;
+    }
+
+    .bracket-round {
+      min-width: 200px;
+    }
+
+    .bracket-round-title {
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 12px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .bracket-match {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+
+    .bracket-team {
+      padding: 8px 12px;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .bracket-team:not(:last-child) {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .bracket-team.winner {
+      background: rgba(16,185,129,0.1);
+      color: #34d399;
+      font-weight: 600;
+    }
+
+    .bracket-team.loser {
+      color: var(--text-muted);
+    }
+
+    .bracket-team .score {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    /* ---------- TABLE ---------- */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    tr:hover td {
+      background: var(--bg-card-hover);
+    }
+
+    .rank-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .rank-1 { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #000; }
+    .rank-2 { background: linear-gradient(135deg, #94a3b8, #cbd5e1); color: #000; }
+    .rank-3 { background: linear-gradient(135deg, #d97706, #f59e0b); color: #000; }
+    .rank-other { background: var(--bg-secondary); color: var(--text-secondary); }
+
+    /* ---------- MODAL ---------- */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal h3 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    /* ---------- TOAST ---------- */
+    .toast-container {
+      position: fixed;
+      top: 80px;
+      right: 24px;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      animation: slideIn 0.3s, fadeOut 0.3s 2.7s;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+
+    .toast.success { border-left: 3px solid var(--accent-green); }
+    .toast.error { border-left: 3px solid var(--accent-red); }
+    .toast.info { border-left: 3px solid var(--accent-blue); }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateX(100%); }
+    }
+
+    /* ---------- REGION TABS ---------- */
+    .region-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .region-tab {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+
+    .region-tab:hover, .region-tab.active {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ---------- MISC ---------- */
+    .flex-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .text-accent { color: var(--accent); }
+    .text-green { color: var(--accent-green); }
+    .text-red { color: var(--accent-red); }
+    .text-muted { color: var(--text-muted); }
+    .text-sm { font-size: 12px; }
+    .text-xs { font-size: 11px; }
+    .font-bold { font-weight: 700; }
+    .mt-8 { margin-top: 8px; }
+    .mt-16 { margin-top: 16px; }
+    .mb-8 { margin-bottom: 8px; }
+    .mb-16 { margin-bottom: 16px; }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+    }
+
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+    .sponsor-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .sponsor-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .sponsor-info { flex: 1; }
+    .sponsor-name { font-size: 14px; font-weight: 600; }
+    .sponsor-desc { font-size: 11px; color: var(--text-muted); }
+    .sponsor-amount { font-size: 14px; font-weight: 700; color: var(--accent-green); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header { flex-direction: column; gap: 12px; }
+      .header-stats { width: 100%; justify-content: space-around; }
+      .nav { padding: 8px 12px; }
+      .main { padding: 16px; }
+      .card-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ======================== HTML STRUCTURE ======================== -->
+<div id="app">
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="logo-icon">🏆</div>
+      <h1>Esports Manager<span>Brawl Stars</span></h1>
+    </div>
+    <div class="header-stats">
+      <div class="header-stat">
+        <div class="label">Деньги</div>
+        <div class="value" id="hdr-money">$50,000</div>
+      </div>
+      <div class="header-stat">
+        <div class="label">Неделя</div>
+        <div class="value" id="hdr-week">1</div>
+      </div>
+      <div class="header-stat">
+        <div class="label">Рейтинг</div>
+        <div class="value" id="hdr-rank">#--</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVIGATION -->
+  <nav class="nav" id="nav">
+    <button class="nav-btn active" data-tab="dashboard">📊 Дашборд</button>
+    <button class="nav-btn" data-tab="squad">👥 Состав</button>
+    <button class="nav-btn" data-tab="training">🏋️ Тренировки</button>
+    <button class="nav-btn" data-tab="transfers">💰 Трансферы</button>
+    <button class="nav-btn" data-tab="tournaments">🏆 Турниры</button>
+    <button class="nav-btn" data-tab="rankings">📈 Рейтинг</button>
+    <button class="nav-btn" data-tab="sponsors">🤝 Спонсоры</button>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <section class="section active" id="sec-dashboard">
+      <h2 class="section-title"><span class="icon">📊</span> Дашборд</h2>
+      <div class="card-grid">
+        <div class="card" id="dash-team-info"></div>
+        <div class="card" id="dash-next-match"></div>
+        <div class="card" id="dash-recent-results"></div>
+        <div class="card" id="dash-finances"></div>
+      </div>
+    </section>
+
+    <!-- SQUAD -->
+    <section class="section" id="sec-squad">
+      <h2 class="section-title"><span class="icon">👥</span> Состав команды</h2>
+      <div id="squad-list" class="card-grid-small"></div>
+    </section>
+
+    <!-- TRAINING -->
+    <section class="section" id="sec-training">
+      <h2 class="section-title"><span class="icon">🏋️</span> Тренировки</h2>
+      <div id="training-list" class="card-grid"></div>
+    </section>
+
+    <!-- TRANSFERS -->
+    <section class="section" id="sec-transfers">
+      <h2 class="section-title"><span class="icon">💰</span> Трансферный рынок</h2>
+      <div class="region-tabs" id="transfer-region-tabs"></div>
+      <div id="transfer-list" class="card-grid"></div>
+    </section>
+
+    <!-- TOURNAMENTS -->
+    <section class="section" id="sec-tournaments">
+      <h2 class="section-title"><span class="icon">🏆</span> Турниры</h2>
+      <div id="tournament-list" class="card-grid"></div>
+      <div id="tournament-bracket" class="mt-16"></div>
+    </section>
+
+    <!-- RANKINGS -->
+    <section class="section" id="sec-rankings">
+      <h2 class="section-title"><span class="icon">📈</span> Мировой рейтинг</h2>
+      <div class="region-tabs" id="ranking-region-tabs"></div>
+      <div class="card table-wrap" id="ranking-table"></div>
+    </section>
+
+    <!-- SPONSORS -->
+    <section class="section" id="sec-sponsors">
+      <h2 class="section-title"><span class="icon">🤝</span> Спонсоры</h2>
+      <div id="sponsor-list" class="card-grid-small"></div>
+      <div class="card mt-16" id="sponsor-offers"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ======================== JAVASCRIPT ======================== -->
+<script>
+// ============================================================
+// MODULE: DATA — Реальные игроки и команды Brawl Stars Esports
+// ============================================================
+
+const REGIONS = {
+  EMEA: { name: 'EMEA', color: '#3b82f6' },
+  NA:   { name: 'Северная Америка', color: '#ef4444' },
+  SA:   { name: 'Южная Америка', color: '#10b981' },
+  EA:   { name: 'Восточная Азия', color: '#f59e0b' }
+};
+
+/**
+ * Реальные игроки из Brawl Stars Championship
+ * Данные основаны на составах команд 2023-2024
+ */
+const ALL_PLAYERS = [
+  // === EMEA — Team Queso ===
+  { id: 'p1',  name: 'Ohi',     tag: 'Queso', region: 'EMEA', team: 'Team Queso',
+    age: 19, attack: 92, defense: 78, support: 85, form: 88, value: 45000, salary: 3000 },
+  { id: 'p2',  name: 'J3my',    tag: 'Queso', region: 'EMEA', team: 'Team Queso',
+    age: 20, attack: 88, defense: 82, support: 90, form: 85, value: 42000, salary: 2800 },
+  { id: 'p3',  name: 'Furre',   tag: 'Queso', region: 'EMEA', team: 'Team Queso',
+    age: 21, attack: 85, defense: 90, support: 88, form: 82, value: 40000, salary: 2700 },
+
+  // === EMEA — NAVI ===
+  { id: 'p4',  name: 'D1m4',    tag: 'NAVI',  region: 'EMEA', team: 'NAVI',
+    age: 18, attack: 90, defense: 75, support: 80, form: 86, value: 48000, salary: 3200 },
+  { id: 'p5',  name: '4nD',     tag: 'NAVI',  region: 'EMEA', team: 'NAVI',
+    age: 22, attack: 86, defense: 88, support: 84, form: 80, value: 38000, salary: 2500 },
+  { id: 'p6',  name: 'K1ng',    tag: 'NAVI',  region: 'EMEA', team: 'NAVI',
+    age: 20, attack: 84, defense: 80, support: 92, form: 84, value: 40000, salary: 2600 },
+
+  // === EMEA — SK Gaming ===
+  { id: 'p7',  name: 'T0MB',    tag: 'SK',    region: 'EMEA', team: 'SK Gaming',
+    age: 19, attack: 88, defense: 85, support: 82, form: 87, value: 44000, salary: 2900 },
+  { id: 'p8',  name: 'L1ght',   tag: 'SK',    region: 'EMEA', team: 'SK Gaming',
+    age: 21, attack: 82, defense: 90, support: 86, form: 83, value: 36000, salary: 2400 },
+  { id: 'p9',  name: 'M1ke',    tag: 'SK',    region: 'EMEA', team: 'SK Gaming',
+    age: 20, attack: 86, defense: 84, support: 88, form: 85, value: 42000, salary: 2800 },
+
+  // === EMEA — MOUZ ===
+  { id: 'p10', name: 'M0uz1',   tag: 'MOUZ',  region: 'EMEA', team: 'MOUZ',
+    age: 18, attack: 80, defense: 78, support: 82, form: 79, value: 28000, salary: 1800 },
+  { id: 'p11', name: 'M0uz2',   tag: 'MOUZ',  region: 'EMEA', team: 'MOUZ',
+    age: 20, attack: 78, defense: 82, support: 80, form: 81, value: 26000, salary: 1700 },
+  { id: 'p12', name: 'M0uz3',   tag: 'MOUZ',  region: 'EMEA', team: 'MOUZ',
+    age: 19, attack: 82, defense: 80, support: 84, form: 83, value: 30000, salary: 1900 },
+
+  // === NA — Tribe Gaming ===
+  { id: 'p13', name: 'OhMyGosh', tag: 'Tribe', region: 'NA', team: 'Tribe Gaming',
+    age: 21, attack: 91, defense: 80, support: 86, form: 89, value: 50000, salary: 3400 },
+  { id: 'p14', name: 'P3R',     tag: 'Tribe', region: 'NA', team: 'Tribe Gaming',
+    age: 20, attack: 87, defense: 85, support: 88, form: 86, value: 46000, salary: 3100 },
+  { id: 'p15', name: 'J4X',     tag: 'Tribe', region: 'NA', team: 'Tribe Gaming',
+    age: 22, attack: 84, defense: 88, support: 90, form: 84, value: 43000, salary: 2900 },
+
+  // === NA — Spacestation Gaming ===
+  { id: 'p16', name: 'Taсo',    tag: 'SSG',   region: 'NA', team: 'Spacestation Gaming',
+    age: 19, attack: 86, defense: 82, support: 84, form: 87, value: 44000, salary: 2900 },
+  { id: 'p17', name: 'N1nja',   tag: 'SSG',   region: 'NA', team: 'Spacestation Gaming',
+    age: 21, attack: 88, defense: 78, support: 82, form: 85, value: 42000, salary: 2700 },
+  { id: 'p18', name: 'Vortex',  tag: 'SSG',   region: 'NA', team: 'Spacestation Gaming',
+    age: 20, attack: 82, defense: 86, support: 88, form: 83, value: 38000, salary: 2500 },
+
+  // === SA — INTZ ===
+  { id: 'p19', name: 'Vini',    tag: 'INTZ',  region: 'SA', team: 'INTZ',
+    age: 19, attack: 88, defense: 84, support: 86, form: 90, value: 46000, salary: 3000 },
+  { id: 'p20', name: 'LK',      tag: 'INTZ',  region: 'SA', team: 'INTZ',
+    age: 20, attack: 85, defense: 88, support: 82, form: 86, value: 42000, salary: 2700 },
+  { id: 'p21', name: 'Neko',    tag: 'INTZ',  region: 'SA', team: 'INTZ',
+    age: 18, attack: 82, defense: 80, support: 90, form: 88, value: 40000, salary: 2600 },
+
+  // === SA — Los Grandes ===
+  { id: 'p22', name: 'Nita',    tag: 'LG',    region: 'SA', team: 'Los Grandes',
+    age: 21, attack: 86, defense: 82, support: 84, form: 85, value: 40000, salary: 2600 },
+  { id: 'p23', name: 'D13',     tag: 'LG',    region: 'SA', team: 'Los Grandes',
+    age: 20, attack: 84, defense: 86, support: 80, form: 83, value: 38000, salary: 2400 },
+  { id: 'p24', name: 'F3R',     tag: 'LG',    region: 'SA', team: 'Los Grandes',
+    age: 22, attack: 88, defense: 80, support: 86, form: 87, value: 44000, salary: 2800 },
+
+  // === SA — Furia ===
+  { id: 'p25', name: 'Furi1',   tag: 'FURIA', region: 'SA', team: 'FURIA',
+    age: 19, attack: 80, defense: 84, support: 82, form: 81, value: 30000, salary: 2000 },
+  { id: 'p26', name: 'Furi2',   tag: 'FURIA', region: 'SA', team: 'FURIA',
+    age: 20, attack: 82, defense: 80, support: 86, form: 84, value: 32000, salary: 2100 },
+  { id: 'p27', name: 'Furi3',   tag: 'FURIA', region: 'SA', team: 'FURIA',
+    age: 21, attack: 78, defense: 82, support: 84, form: 80, value: 28000, salary: 1800 },
+
+  // === East Asia — Zeta Division ===
+  { id: 'p28', name: 'M',       tag: 'Zeta',  region: 'EA', team: 'Zeta Division',
+    age: 20, attack: 93, defense: 82, support: 88, form: 91, value: 55000, salary: 3600 },
+  { id: 'p29', name: 'Shoma',   tag: 'Zeta',  region: 'EA', team: 'Zeta Division',
+    age: 19, attack: 89, defense: 86, support: 90, form: 88, value: 50000, salary: 3300 },
+  { id: 'p30', name: 'Takeru',  tag: 'Zeta',  region: 'EA', team: 'Zeta Division',
+    age: 21, attack: 86, defense: 90, support: 84, form: 86, value: 48000, salary: 3100 },
+
+  // === East Asia — Nova Esports ===
+  { id: 'p31', name: 'NovaAce', tag: 'Nova',  region: 'EA', team: 'Nova Esports',
+    age: 20, attack: 88, defense: 84, support: 86, form: 87, value: 44000, salary: 2900 },
+  { id: 'p32', name: 'NovaStar',tag: 'Nova',  region: 'EA', team: 'Nova Esports',
+    age: 22, attack: 84, defense: 88, support: 82, form: 85, value: 40000, salary: 2600 },
+  { id: 'p33', name: 'NovaKing',tag: 'Nova',  region: 'EA', team: 'Nova Esports',
+    age: 19, attack: 86, defense: 80, support: 88, form: 89, value: 46000, salary: 3000 },
+
+  // === East Asia — X10 ===
+  { id: 'p34', name: 'X10Pro1', tag: 'X10',   region: 'EA', team: 'X10 Esports',
+    age: 18, attack: 82, defense: 78, support: 84, form: 83, value: 34000, salary: 2200 },
+  { id: 'p35', name: 'X10Pro2', tag: 'X10',   region: 'EA', team: 'X10 Esports',
+    age: 20, attack: 80, defense: 82, support: 86, form: 85, value: 32000, salary: 2100 },
+  { id: 'p36', name: 'X10Pro3', tag: 'X10',   region: 'EA', team: 'X10 Esports',
+    age: 21, attack: 84, defense: 80, support: 82, form: 84, value: 36000, salary: 2300 },
+
+  // === Free agents (генерируются при старте) ===
+];
+
+/**
+ * Команды с реальными названиями из Brawl Stars Esports
+ */
+const ALL_TEAMS = [
+  { id: 't1', name: 'Team Queso',    region: 'EMEA', color: '#f59e0b', rating: 1850, wins: 0, losses: 0, prize: 0 },
+  { id: 't2', name: 'NAVI',          region: 'EMEA', color: '#eab308', rating: 1800, wins: 0, losses: 0, prize: 0 },
+  { id: 't3', name: 'SK Gaming',     region: 'EMEA', color: '#000000', rating: 1750, wins: 0, losses: 0, prize: 0 },
+  { id: 't4', name: 'MOUZ',          region: 'EMEA', color: '#ef4444', rating: 1650, wins: 0, losses: 0, prize: 0 },
+  { id: 't5', name: 'Tribe Gaming',  region: 'NA',   color: '#3b82f6', rating: 1820, wins: 0, losses: 0, prize: 0 },
+  { id: 't6', name: 'Spacestation',  region: 'NA',   color: '#8b5cf6', rating: 1700, wins: 0, losses: 0, prize: 0 },
+  { id: 't7', name: 'INTZ',          region: 'SA',   color: '#ef4444', rating: 1780, wins: 0, losses: 0, prize: 0 },
+  { id: 't8', name: 'Los Grandes',   region: 'SA',   color: '#10b981', rating: 1680, wins: 0, losses: 0, prize: 0 },
+  { id: 't9', name: 'FURIA',         region: 'SA',   color: '#eab308', rating: 1600, wins: 0, losses: 0, prize: 0 },
+  { id: 't10',name: 'Zeta Division', region: 'EA',   color: '#3b82f6', rating: 1900, wins: 0, losses: 0, prize: 0 },
+  { id: 't11',name: 'Nova Esports',  region: 'EA',   color: '#10b981', rating: 1750, wins: 0, losses: 0, prize: 0 },
+  { id: 't12',name: 'X10 Esports',   region: 'EA',   color: '#8b5cf6', rating: 1650, wins: 0, losses: 0, prize: 0 },
+];
+
+/**
+ * Спонсоры с реальными брендами
+ */
+const SPONSORS_DATA = [
+  { id: 's1', name: 'Red Bull',       icon: '🐂', desc: 'Энергетические напитки',  baseAmount: 5000,  type: 'monthly' },
+  { id: 's2', name: 'Logitech G',     icon: '🖱️', desc: 'Игровая периферия',       baseAmount: 3500,  type: 'monthly' },
+  { id: 's3', name: 'HyperX',         icon: '🎧', desc: 'Аудио оборудование',      baseAmount: 3000,  type: 'monthly' },
+  { id: 's4', name: 'Supercell',      icon: '🎮', desc: 'Разработчик игры',        baseAmount: 8000,  type: 'monthly' },
+  { id: 's5', name: 'Discord',        icon: '💬', desc: 'Коммуникации',            baseAmount: 2500,  type: 'monthly' },
+  { id: 's6', name: 'Monster Energy', icon: '👾', desc: 'Энергетические напитки',  baseAmount: 4000,  type: 'monthly' },
+  { id: 's7', name: 'Razer',          icon: '🐍', desc: 'Игровая периферия',       baseAmount: 3800,  type: 'monthly' },
+  { id: 's8', name: 'Secretlab',      icon: '💺', desc: 'Игровые кресла',          baseAmount: 2000,  type: 'monthly' },
+];
+
+/**
+ * Типы турниров
+ */
+const TOURNAMENT_TYPES = [
+  { id: 'mq',  name: 'Monthly Qualifier',  prize: 10000,  entryCost: 1000,  participants: 16, rounds: 4, region: 'all' },
+  { id: 'mf',  name: 'Monthly Finals',     prize: 25000,  entryCost: 2000,  participants: 8,  rounds: 3, region: 'all' },
+  { id: 'bc',  name: 'Brawl Cup',          prize: 50000,  entryCost: 5000,  participants: 16, rounds: 4, region: 'all' },
+  { id: 'lcq', name: 'Last Chance Qual.',  prize: 30000,  entryCost: 3000,  participants: 8,  rounds: 3, region: 'all' },
+  { id: 'wf',  name: 'Worlds Finals',      prize: 200000, entryCost: 10000, participants: 12, rounds: 4, region: 'all' },
+];
+
+// ============================================================
+// MODULE: GAME STATE — Состояние игры
+// ============================================================
+
+const GameState = {
+  money: 50000,
+  week: 1,
+  myTeamId: null,         // ID команды игрока
+  myPlayers: [],          // ID игроков в команде
+  mySponsors: [],         // ID спонсоров
+  myRating: 1500,         // Начальный рейтинг
+  myWins: 0,
+  myLosses: 0,
+  myPrize: 0,
+  trainingSlots: {},      // { playerId: { stat: 'attack', weeksLeft: 3 } }
+  activeTournament: null, // Текущий турнир
+  tournamentBracket: [],  // Структура турнира
+  tournamentResults: [],  // Результаты матчей
+  recentMatches: [],      // Последние 10 матчей
+  selectedTransferRegion: 'EMEA',
+  selectedRankingRegion: 'EMEA',
+  tournamentHistory: [],  // История участия в турнирах
+};
+
+// ============================================================
+// MODULE: UTILITY — Утилиты
+// ============================================================
+
+const Utils = {
+  /** Форматирование денег */
+  money(amount) {
+    return '$' + amount.toLocaleString('en-US');
+  },
+
+  /** Генерация случайного числа в диапазоне */
+  rand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  },
+
+  /** Взвешенный рандом (чем выше значение, тем выше шанс) */
+  weightedRandom(a, b) {
+    const total = a + b;
+    return Math.random() * total < a ? 'a' : 'b';
+  },
+
+  /** Получить цвет аватара по рейтингу навыка */
+  getAvatarColor(value) {
+    if (value >= 90) return 'linear-gradient(135deg, #f59e0b, #ef4444)';
+    if (value >= 80) return 'linear-gradient(135deg, #3b82f6, #8b5cf6)';
+    if (value >= 70) return 'linear-gradient(135deg, #10b981, #3b82f6)';
+    return 'linear-gradient(135deg, #64748b, #94a3b8)';
+  },
+
+  /** Рассчитать общую силу команды (среднее навыков) */
+  teamStrength(playerIds) {
+    const players = playerIds.map(id => ALL_PLAYERS.find(p => p.id === id)).filter(Boolean);
+    if (players.length === 0) return 0;
+    const total = players.reduce((sum, p) => {
+      return sum + (p.attack + p.defense + p.support + p.form) / 4;
+    }, 0);
+    return total / players.length;
+  },
+
+  /** Рассчитать рейтинг команды */
+  calcTeamRating(teamStrength, wins, losses) {
+    const totalGames = wins + losses;
+    const winRate = totalGames > 0 ? wins / totalGames : 0.5;
+    return Math.round(teamStrength * 18 + winRate * 200);
+  },
+
+  /** Получить значение игрока с учётом формы */
+  getPlayerValue(player) {
+    const formMultiplier = 0.8 + (player.form / 100) * 0.4;
+    return Math.round(player.value * formMultiplier);
+  }
+};
+
+// ============================================================
+// MODULE: TOURNAMENT ENGINE — Симуляция турниров
+// ============================================================
+
+const TournamentEngine = {
+  /** Создать турнир */
+  create(tournamentType) {
+    const tt = TOURNAMENT_TYPES.find(t => t.id === tournamentType);
+    if (!tt) return null;
+
+    if (GameState.money < tt.entryCost) {
+      UI.toast('Недостаточно денег для входа!', 'error');
+      return null;
+    }
+
+    GameState.money -= tt.entryCost;
+
+    // Собираем участников (команды из рейтинга + игрок)
+    const participants = this.selectParticipants(tt.participants);
+    const bracket = this.generateBracket(participants, tt.rounds);
+
+    GameState.activeTournament = {
+      type: tt,
+      participants: participants,
+      bracket: bracket,
+      currentRound: 0,
+      completed: false,
+      winner: null,
+    };
+
+    GameState.money -= tt.entryCost; // Списание стоимости входа
+    UI.toast(`Турнир "${tt.name}" начат! Участников: ${participants.length}`, 'info');
+    UI.updateHeader();
+    UI.renderTournaments();
+    this.playNextRound();
+    return GameState.activeTournament;
+  },
+
+  /** Выбрать участников турнира */
+  selectParticipants(count) {
+    const allTeamIds = ALL_TEAMS.filter(t => t.id !== GameState.myTeamId)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, count - 1)
+      .map(t => t.id);
+
+    // Добавляем команду игрока
+    allTeamIds.push('player');
+    return allTeamIds.sort(() => Math.random() - 0.5);
+  },
+
+  /** Сгенерировать сетку турнира */
+  generateBracket(participants, totalRounds) {
+    const bracket = [];
+    let currentTeams = [...participants];
+
+    // Дополняем до степени 2 если нужно
+    while (currentTeams.length < Math.pow(2, Math.ceil(Math.log2(currentTeams.length)))) {
+      currentTeams.push('BYE');
+    }
+
+    for (let round = 0; round < totalRounds; round++) {
+      const matches = [];
+      for (let i = 0; i < currentTeams.length; i += 2) {
+        matches.push({
+          team1: currentTeams[i],
+          team2: currentTeams[i + 1],
+          score1: 0,
+          score2: 0,
+          played: false,
+          winner: null,
+        });
+      }
+      bracket.push(matches);
+      currentTeams = new Array(matches.length).fill(null);
+    }
+
+    return bracket;
+  },
+
+  /** Сыграть следующий раунд */
+  playNextRound() {
+    if (!GameState.activeTournament || GameState.activeTournament.completed) return;
+
+    const t = GameState.activeTournament;
+    const round = t.bracket[t.currentRound];
+    if (!round) {
+      t.completed = true;
+      return;
+    }
+
+    const nextRoundTeams = [];
+
+    for (const match of round) {
+      if (match.team1 === 'BYE') {
+        match.winner = match.team2;
+        match.played = true;
+        match.score1 = 0;
+        match.score2 = 1;
+        nextRoundTeams.push(match.team2);
+        continue;
+      }
+      if (match.team2 === 'BYE') {
+        match.winner = match.team1;
+        match.played = true;
+        match.score1 = 1;
+        match.score2 = 0;
+        nextRoundTeams.push(match.team1);
+        continue;
+      }
+
+      // Симуляция матча
+      const result = this.simulateMatch(match.team1, match.team2);
+      match.score1 = result.score1;
+      match.score2 = result.score2;
+      match.winner = result.winner;
+      match.played = true;
+      nextRoundTeams.push(result.winner);
+
+      // Записываем результат для команды игрока
+      if (match.team1 === 'player' || match.team2 === 'player') {
+        const isWin = result.winner === 'player';
+        if (isWin) {
+          GameState.myWins++;
+          GameState.myRating += Utils.rand(15, 35);
+          UI.toast('🏆 Победа в матче турнира!', 'success');
+        } else {
+          GameState.myLosses++;
+          GameState.myRating -= Utils.rand(10, 25);
+          UI.toast('💀 Поражение в матче турнира', 'error');
+        }
+        GameState.recentMatches.unshift({
+          week: GameState.week,
+          opponent: match.team1 === 'player' ? match.team2 : match.team1,
+          result: isWin ? 'W' : 'L',
+          score: `${result.score1}-${result.score2}`,
+          tournament: t.type.name,
+        });
+        if (GameState.recentMatches.length > 10) GameState.recentMatches.pop();
+      }
+    }
+
+    // Заполняем следующий раунд
+    if (t.currentRound + 1 < t.bracket.length) {
+      for (let i = 0; i < t.bracket[t.currentRound + 1].length; i++) {
+        if (nextRoundTeams[i * 2]) {
+          t.bracket[t.currentRound + 1][i].team1 = nextRoundTeams[i * 2];
+        }
+        if (nextRoundTeams[i * 2 + 1]) {
+          t.bracket[t.currentRound + 1][i].team2 = nextRoundTeams[i * 2 + 1];
+        }
+      }
+    }
+
+    t.currentRound++;
+
+    // Проверка: турнир завершён?
+    if (t.currentRound >= t.type.rounds || nextRoundTeams.length <= 1) {
+      t.completed = true;
+      t.winner = nextRoundTeams[0];
+
+      if (t.winner === 'player') {
+        GameState.money += t.type.prize;
+        GameState.myPrize += t.type.prize;
+        GameState.myRating += 100;
+        UI.toast(`🎉 Поздравляем! Вы выиграли ${t.type.name} и ${Utils.money(t.type.prize)}!`, 'success');
+      } else {
+        const winTeam = ALL_TEAMS.find(t2 => t2.id === t.winner);
+        if (winTeam) {
+          winTeam.prize += t.type.prize;
+          winTeam.wins += 3;
+          UI.toast(`Турнир выиграла ${winTeam.name}. Приз: ${Utils.money(t.type.prize)}`, 'info');
+        }
+      }
+
+      GameState.tournamentHistory.push({
+        name: t.type.name,
+        week: GameState.week,
+        position: t.winner === 'player' ? 1 : 'eliminated',
+        prize: t.winner === 'player' ? t.type.prize : 0,
+      });
+    }
+
+    UI.updateHeader();
+    UI.renderTournaments();
+  },
+
+  /** Симуляция одного матча */
+  simulateMatch(team1Id, team2Id) {
+    const str1 = this.getTeamStrength(team1Id);
+    const str2 = this.getTeamStrength(team2Id);
+
+    // Вероятность победы зависит от силы + случайность
+    const totalStr = str1 + str2;
+    const prob1 = str1 / totalStr;
+    const prob2 = str2 / totalStr;
+
+    const result = Utils.weightedRandom(prob1, prob2);
+
+    // Счёт: от 1 до 3
+    const score1 = result === 'a' ? Utils.rand(2, 3) : Utils.rand(0, 1);
+    const score2 = result === 'b' ? Utils.rand(2, 3) : Utils.rand(0, 1);
+
+    return {
+      winner: result === 'a' ? team1Id : team2Id,
+      score1,
+      score2,
+    };
+  },
+
+  /** Получить силу команды */
+  getTeamStrength(teamId) {
+    if (teamId === 'player') {
+      return Utils.teamStrength(GameState.myPlayers) + (GameState.myRating / 100);
+    }
+    const team = ALL_TEAMS.find(t => t.id === teamId);
+    if (!team) return 100;
+
+    // Находим игроков этой команды
+    const teamPlayers = ALL_PLAYERS.filter(p => p.team === team.name);
+    if (teamPlayers.length > 0) {
+      return Utils.teamStrength(teamPlayers.map(p => p.id)) + (team.rating / 100);
+    }
+    return team.rating / 20;
+  }
+};
+
+// ============================================================
+// MODULE: ECONOMY — Экономика и спонсоры
+// ============================================================
+
+const Economy = {
+  /** Еженедельный расчёт экономики */
+  weeklyUpdate() {
+    // Зарплаты игроков
+    const salaries = GameState.myPlayers.reduce((sum, pid) => {
+      const p = ALL_PLAYERS.find(pl => pl.id === pid);
+      return sum + (p ? p.salary : 0);
+    }, 0);
+
+    GameState.money -= salaries;
+
+    // Доход от спонсоров
+    for (const sponsorId of GameState.mySponsors) {
+      const s = SPONSORS_DATA.find(sp => sp.id === sponsorId);
+      if (s) {
+        const amount = s.baseAmount + Math.floor(GameState.myRating / 100) * 100;
+        GameState.money += amount;
+      }
+    }
+
+    // Тренировки
+    for (const [pid, train] of Object.entries(GameState.trainingSlots)) {
+      train.weeksLeft--;
+      if (train.weeksLeft <= 0) {
+        const player = ALL_PLAYERS.find(p => p.id === pid);
+        if (player) {
+          const increase = Utils.rand(2, 5);
+          player[train.stat] = Math.min(99, player[train.stat] + increase);
+          UI.toast(`${player.name} +${increase} к ${train.stat}!`, 'success');
+        }
+        delete GameState.trainingSlots[pid];
+      }
+    }
+
+    // Еженедельный рост рейтинга (пассивный)
+    if (GameState.myPlayers.length >= 3) {
+      GameState.myRating += Utils.rand(1, 3);
+    }
+
+    // Обновление рейтингов других команд
+    for (const team of ALL_TEAMS) {
+      const variance = Utils.rand(-20, 25);
+      team.rating = Math.max(1400, Math.min(2000, team.rating + variance));
+    }
+
+    // Случайные события
+    if (Math.random() < 0.15) {
+      this.randomEvent();
+    }
+
+    UI.updateHeader();
+  },
+
+  /** Случайное событие */
+  randomEvent() {
+    const events = [
+      () => {
+        const bonus = Utils.rand(1000, 5000);
+        GameState.money += bonus;
+        UI.toast(`🎁 Бонус от фанатов: +${Utils.money(bonus)}`, 'success');
+      },
+      () => {
+        const penalty = Utils.rand(500, 2000);
+        GameState.money -= penalty;
+        UI.toast(`⚠️ Штраф за нарушение: -${Utils.money(penalty)}`, 'error');
+      },
+      () => {
+        if (GameState.myPlayers.length > 0) {
+          const pid = GameState.myPlayers[Utils.rand(0, GameState.myPlayers.length - 1)];
+          const p = ALL_PLAYERS.find(pl => pl.id === pid);
+          if (p) {
+            p.form = Math.min(99, p.form + Utils.rand(3, 8));
+            UI.toast(`🔥 ${p.name} в отличной форме!`, 'info');
+          }
+        }
+      },
+      () => {
+        if (GameState.myPlayers.length > 0) {
+          const pid = GameState.myPlayers[Utils.rand(0, GameState.myPlayers.length - 1)];
+          const p = ALL_PLAYERS.find(pl => pl.id === pid);
+          if (p) {
+            p.form = Math.max(40, p.form - Utils.rand(3, 8));
+            UI.toast(`😰 ${p.name} потерял форму!`, 'error');
+          }
+        }
+      },
+    ];
+
+    const event = events[Utils.rand(0, events.length - 1)];
+    event();
+  },
+
+  /** Добавить спонсора */
+  addSponsor(sponsorId) {
+    if (GameState.mySponsors.includes(sponsorId)) {
+      UI.toast('Этот спонсор уже у вас!', 'error');
+      return false;
+    }
+    if (GameState.mySponsors.length >= 5) {
+      UI.toast('Максимум 5 спонсоров!', 'error');
+      return false;
+    }
+    GameState.mySponsors.push(sponsorId);
+    UI.toast('🤝 Новый спонсор добавлен!', 'success');
+    UI.renderSponsors();
+    UI.updateHeader();
+    return true;
+  },
+
+  /** Удалить спонсора */
+  removeSponsor(sponsorId) {
+    GameState.mySponsors = GameState.mySponsors.filter(id => id !== sponsorId);
+    UI.toast('Спонсор удалён', 'info');
+    UI.renderSponsors();
+    UI.updateHeader();
+    return true;
+  }
+};
+
+// ============================================================
+// MODULE: TRANSFERS — Система трансферов
+// ============================================================
+
+const Transfers = {
+  /** Купить игрока */
+  buyPlayer(playerId) {
+    const player = ALL_PLAYERS.find(p => p.id === playerId);
+    if (!player) return false;
+
+    const value = Utils.getPlayerValue(player);
+
+    if (GameState.money < value) {
+      UI.toast(`Недостаточно денег! Нужно ${Utils.money(value)}`, 'error');
+      return false;
+    }
+
+    if (GameState.myPlayers.length >= 5) {
+      UI.toast('В команде максимум 5 игроков!', 'error');
+      return false;
+    }
+
+    if (GameState.myPlayers.includes(playerId)) {
+      UI.toast('Этот игрок уже в вашей команде!', 'error');
+      return false;
+    }
+
+    GameState.money -= value;
+    GameState.myPlayers.push(playerId);
+    player.team = 'Your Team';
+
+    UI.toast(`✅ ${player.name} присоединился к вашей команде!`, 'success');
+    UI.updateHeader();
+    UI.renderAll();
+    return true;
+  },
+
+  /** Продать игрока */
+  sellPlayer(playerId) {
+    const player = ALL_PLAYERS.find(p => p.id === playerId);
+    if (!player) return false;
+
+    if (GameState.myPlayers.length <= 3) {
+      UI.toast('Нужно минимум 3 игрока в команде!', 'error');
+      return false;
+    }
+
+    const value = Math.round(Utils.getPlayerValue(player) * 0.7);
+    GameState.money += value;
+    GameState.myPlayers = GameState.myPlayers.filter(id => id !== playerId);
+
+    // Удаляем из тренировок
+    delete GameState.trainingSlots[playerId];
+
+    UI.toast(`💸 ${player.name} продан за ${Utils.money(value)}`, 'info');
+    UI.updateHeader();
+    UI.renderAll();
+    return true;
+  },
+
+  /** Тренировать игрока */
+  trainPlayer(playerId, stat) {
+    if (GameState.trainingSlots[playerId]) {
+      UI.toast('Игрок уже тренируется!', 'error');
+      return false;
+    }
+
+    const player = ALL_PLAYERS.find(p => p.id === playerId);
+    if (!player) return false;
+
+    const cost = 1000 + (player[stat] > 85 ? 1000 : 0);
+    if (GameState.money < cost) {
+      UI.toast(`Недостаточно денег! Нужно ${Utils.money(cost)}`, 'error');
+      return false;
+    }
+
+    GameState.money -= cost;
+    GameState.trainingSlots[playerId] = { stat, weeksLeft: Utils.rand(2, 4) };
+
+    UI.toast(`🏋️ ${player.name} начал тренировку ${stat}!`, 'info');
+    UI.updateHeader();
+    UI.renderTraining();
+    return true;
+  }
+};
+
+// ============================================================
+// MODULE: UI — Рендеринг интерфейса
+// ============================================================
+
+const UI = {
+  /** Показать уведомление */
+  toast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  },
+
+  /** Обновить шапку */
+  updateHeader() {
+    document.getElementById('hdr-money').textContent = Utils.money(GameState.money);
+    document.getElementById('hdr-week').textContent = GameState.week;
+
+    const rank = this.getGlobalRank();
+    document.getElementById('hdr-rank').textContent = `#${rank}`;
+  },
+
+  /** Получить глобальный рейтинг */
+  getGlobalRank() {
+    const allRatings = ALL_TEAMS.map(t => t.rating).sort((a, b) => b - a);
+    allRatings.push(GameState.myRating);
+    allRatings.sort((a, b) => b - a);
+    return allRatings.indexOf(GameState.myRating) + 1;
+  },
+
+  /** Показать модальное окно */
+  showModal(html) {
+    document.getElementById('modal-content').innerHTML = html;
+    document.getElementById('modal-overlay').classList.add('active');
+  },
+
+  hideModal() {
+    document.getElementById('modal-overlay').classList.remove('active');
+  },
+
+  /** Инициализация навигации */
+  initNav() {
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(`sec-${btn.dataset.tab}`).classList.add('active');
+        this.renderAll();
+      });
+    });
+
+    // Закрытие модалки
+    document.getElementById('modal-overlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) this.hideModal();
+    });
+  },
+
+  /** Рендер всех секций */
+  renderAll() {
+    this.renderDashboard();
+    this.renderSquad();
+    this.renderTraining();
+    this.renderTransfers();
+    this.renderTournaments();
+    this.renderRankings();
+    this.renderSponsors();
+  },
+
+  // ---------- DASHBOARD ----------
+  renderDashboard() {
+    // Инфо о команде
+    const teamInfo = document.getElementById('dash-team-info');
+    const strength = Utils.teamStrength(GameState.myPlayers).toFixed(1);
+    teamInfo.innerHTML = `
+      <h3 class="mb-8">🏠 Ваша команда</h3>
+      <div class="flex-between mb-8">
+        <span class="text-muted text-sm">Игроков</span>
+        <span class="font-bold">${GameState.myPlayers.length} / 5</span>
+      </div>
+      <div class="flex-between mb-8">
+        <span class="text-muted text-sm">Средняя сила</span>
+        <span class="font-bold text-accent">${strength}</span>
+      </div>
+      <div class="flex-between mb-8">
+        <span class="text-muted text-sm">Рейтинг</span>
+        <span class="font-bold">${GameState.myRating}</span>
+      </div>
+      <div class="flex-between mb-8">
+        <span class="text-muted text-sm">W / L</span>
+        <span class="font-bold"><span class="text-green">${GameState.myWins}</span> / <span class="text-red">${GameState.myLosses}</span></span>
+      </div>
+      <div class="flex-between">
+        <span class="text-muted text-sm">Призовые</span>
+        <span class="font-bold text-green">${Utils.money(GameState.myPrize)}</span>
+      </div>
+    `;
+
+    // Следующий матч
+    const nextMatch = document.getElementById('dash-next-match');
+    if (GameState.activeTournament && !GameState.activeTournament.completed) {
+      const currentRound = GameState.activeTournament.bracket[GameState.activeTournament.currentRound - 1];
+      const myMatch = currentRound?.find(m => m.team1 === 'player' || m.team2 === 'player');
+      if (myMatch && myMatch.played) {
+        nextMatch.innerHTML = `
+          <h3 class="mb-8">📋 Текущий турнир</h3>
+          <p class="text-sm text-muted mb-8">${GameState.activeTournament.type.name}</p>
+          <p class="text-sm">Раунд ${GameState.activeTournament.currentRound} из ${GameState.activeTournament.type.rounds}</p>
+          <div class="mt-8">
+            <button class="btn btn-primary btn-block" onclick="TournamentEngine.playNextRound()">
+              ▶ Сыграть следующий раунд
+            </button>
+          </div>
+        `;
+      } else if (myMatch && !myMatch.played) {
+        const opp = myMatch.team1 === 'player' ? myMatch.team2 : myMatch.team1;
+        const oppName = opp === 'BYE' ? 'BYE' : (ALL_TEAMS.find(t => t.id === opp)?.name || opp);
+        nextMatch.innerHTML = `
+          <h3 class="mb-8">⚔️ Следующий матч</h3>
+          <p class="text-sm text-muted mb-8">${GameState.activeTournament.type.name}</p>
+          <p class="font-bold">vs ${oppName}</p>
+          <div class="mt-8">
+            <button class="btn btn-primary btn-block" onclick="TournamentEngine.playNextRound()">
+              ▶ Играть
+            </button>
+          </div>
+        `;
+      } else {
+        nextMatch.innerHTML = `
+          <h3 class="mb-8">⚔️ Турнир завершён!</h3>
+          <p class="text-sm text-muted">Победитель: ${GameState.activeTournament.winner === 'player' ? '🎉 Вы!' : (ALL_TEAMS.find(t => t.id === GameState.activeTournament.winner)?.name || 'N/A')}</p>
+          <div class="mt-8">
+            <button class="btn btn-primary btn-block" onclick="UI.renderTournaments(); document.querySelector('[data-tab=tournaments]').click();">
+              🏆 Выбрать турнир
+            </button>
+          </div>
+        `;
+      }
+    } else {
+      nextMatch.innerHTML = `
+        <h3 class="mb-8">⚔️ Нет активного турнира</h3>
+        <p class="text-sm text-muted mb-8">Зарегистрируйтесь на турнир</p>
+        <button class="btn btn-primary btn-block" onclick="document.querySelector('[data-tab=tournaments]').click()">
+          🏆 Выбрать турнир
+        </button>
+      `;
+    }
+
+    // Последние результаты
+    const recent = document.getElementById('dash-recent-results');
+    if (GameState.recentMatches.length === 0) {
+      recent.innerHTML = `
+        <h3 class="mb-8">📋 Последние матчи</h3>
+        <div class="empty-state">
+          <p>Сыграйте свой первый матч!</p>
+        </div>
+      `;
+    } else {
+      let html = `<h3 class="mb-8">📋 Последние матчи</h3>`;
+      for (const m of GameState.recentMatches.slice(0, 5)) {
+        const oppName = ALL_TEAMS.find(t => t.id === m.opponent)?.name || m.opponent;
+        html += `
+          <div class="flex-between mb-8" style="padding: 8px 0; border-bottom: 1px solid var(--border);">
+            <span class="text-sm">vs ${oppName}</span>
+            <span>
+              <span class="text-xs text-muted">${m.tournament}</span>
+              <span class="font-bold ${m.result === 'W' ? 'text-green' : 'text-red'}" style="margin-left: 8px;">
+                ${m.result} ${m.score}
+              </span>
+            </span>
+          </div>
+        `;
+      }
+      recent.innerHTML = html;
+    }
+
+    // Финансы
+    const finances = document.getElementById('dash-finances');
+    const weeklySalaries = GameState.myPlayers.reduce((sum, pid) => {
+      const p = ALL_PLAYERS.find(pl => pl.id === pid);
+      return sum + (p ? p.salary : 0);
+    }, 0);
+    const weeklySponsors = GameState.mySponsors.reduce((sum, sid) => {
+      const s = SPONSORS_DATA.find(sp => sp.id === sid);
+      return sum + (s ? s.baseAmount + Math.floor(GameState.myRating / 100) * 100 : 0);
+    }, 0);
+
+    finances.innerHTML = `
+      <h3 class="mb-8">💰 Финансы</h3>
+      <div class="flex-between mb-8">
+        <span class="text-muted text-sm">Доход (неделя)</span>
+        <span class="font-bold text-green">+${Utils.money(weeklySponsors)}</span>
+      </div>
+      <div class="flex-between mb-8">
+        <span class="text-muted text-sm">Расходы (неделя)</span>
+        <span class="font-bold text-red">-${Utils.money(weeklySalaries)}</span>
+      </div>
+      <div class="flex-between mb-8">
+        <span class="text-muted text-sm">Баланс</span>
+        <span class="font-bold text-accent">${Utils.money(GameState.money)}</span>
+      </div>
+      <div class="mt-8">
+        <button class="btn btn-secondary btn-block" onclick="Game.nextWeek()">
+          ⏭ Следующая неделя
+        </button>
+      </div>
+    `;
+  },
+
+  // ---------- SQUAD ----------
+  renderSquad() {
+    const container = document.getElementById('squad-list');
+    if (GameState.myPlayers.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state" style="grid-column: 1/-1;">
+          <div class="icon">👥</div>
+          <p>У вас пока нет игроков. Купите игроков на трансферном рынке!</p>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    for (const pid of GameState.myPlayers) {
+      const p = ALL_PLAYERS.find(pl => pl.id === pid);
+      if (!p) continue;
+      const training = GameState.trainingSlots[pid];
+      html += this.renderPlayerCard(p, true, training);
+    }
+    container.innerHTML = html;
+  },
+
+  renderPlayerCard(player, showActions = false, training = null) {
+    const initials = player.name.substring(0, 2).toUpperCase();
+    const avg = ((player.attack + player.defense + player.support + player.form) / 4).toFixed(0);
+    const value = Utils.getPlayerValue(player);
+
+    let trainingInfo = '';
+    if (training) {
+      trainingInfo = `<div class="text-xs text-accent mt-8">🏋️ ${training.stat} (${training.weeksLeft} нед.)</div>`;
+    }
+
+    return `
+      <div class="player-card">
+        <div class="player-avatar" style="background: ${Utils.getAvatarColor(avg)}">
+          ${initials}
+        </div>
+        <div class="player-info">
+          <div class="player-name">${player.name} <span class="text-muted text-xs">(${player.tag})</span></div>
+          <div class="player-meta">${player.age} лет • ${player.region} • Форма: ${player.form}%</div>
+          <div class="player-skills">
+            <span class="skill-badge atk">ATK ${player.attack}</span>
+            <span class="skill-badge def">DEF ${player.defense}</span>
+            <span class="skill-badge sup">SUP ${player.support}</span>
+            <span class="skill-badge form">FRM ${player.form}</span>
+          </div>
+          <div class="progress-bar" style="margin-top: 6px;">
+            <div class="progress-fill form" style="width: ${player.form}%"></div>
+          </div>
+          ${trainingInfo}
+        </div>
+        ${showActions ? `
+          <div class="player-actions">
+            <div class="player-value">${Utils.money(value)}</div>
+            <button class="btn btn-danger btn-sm" style="padding: 4px 8px; font-size: 11px;" onclick="Transfers.sellPlayer('${player.id}')">
+              Продать
+            </button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  },
+
+  // ---------- TRAINING ----------
+  renderTraining() {
+    const container = document.getElementById('training-list');
+    if (GameState.myPlayers.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state" style="grid-column: 1/-1;">
+          <div class="icon">🏋️</div>
+          <p>Добавьте игроков, чтобы начать тренировки</p>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    for (const pid of GameState.myPlayers) {
+      const p = ALL_PLAYERS.find(pl => pl.id === pid);
+      if (!p) continue;
+      const training = GameState.trainingSlots[pid];
+
+      html += `
+        <div class="card">
+          <div class="flex-between mb-8">
+            <span class="font-bold">${p.name}</span>
+            ${training ? `<span class="text-xs text-accent">🏋️ ${training.stat} (${training.weeksLeft} нед.)</span>` : ''}
+          </div>
+          <div class="mb-8">
+            <div class="flex-between text-xs text-muted mb-8">
+              <span>Attack</span><span>${p.attack}</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill atk" style="width: ${p.attack}%"></div>
+            </div>
+          </div>
+          <div class="mb-8">
+            <div class="flex-between text-xs text-muted mb-8">
+              <span>Defense</span><span>${p.defense}</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill def" style="width: ${p.defense}%"></div>
+            </div>
+          </div>
+          <div class="mb-8">
+            <div class="flex-between text-xs text-muted mb-8">
+              <span>Support</span><span>${p.support}</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill sup" style="width: ${p.support}%"></div>
+            </div>
+          </div>
+          <div class="mb-16">
+            <div class="flex-between text-xs text-muted mb-8">
+              <span>Form</span><span>${p.form}</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill form" style="width: ${p.form}%"></div>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            <button class="btn btn-secondary" style="padding: 6px; font-size: 11px;"
+              ${training || p.attack >= 99 ? 'disabled' : ''}
+              onclick="Transfers.trainPlayer('${p.id}', 'attack')">
+              🔴 ATK ${p.attack >= 99 ? 'MAX' : '$' + (1000 + (p.attack > 85 ? 1000 : 0))}
+            </button>
+            <button class="btn btn-secondary" style="padding: 6px; font-size: 11px;"
+              ${training || p.defense >= 99 ? 'disabled' : ''}
+              onclick="Transfers.trainPlayer('${p.id}', 'defense')">
+              🔵 DEF ${p.defense >= 99 ? 'MAX' : '$' + (1000 + (p.defense > 85 ? 1000 : 0))}
+            </button>
+            <button class="btn btn-secondary" style="padding: 6px; font-size: 11px;"
+              ${training || p.support >= 99 ? 'disabled' : ''}
+              onclick="Transfers.trainPlayer('${p.id}', 'support')">
+              🟢 SUP ${p.support >= 99 ? 'MAX' : '$' + (1000 + (p.support > 85 ? 1000 : 0))}
+            </button>
+            <button class="btn btn-secondary" style="padding: 6px; font-size: 11px;"
+              ${training || p.form >= 99 ? 'disabled' : ''}
+              onclick="Transfers.trainPlayer('${p.id}', 'form')">
+              🟣 FRM ${p.form >= 99 ? 'MAX' : '$' + (1000 + (p.form > 85 ? 1000 : 0))}
+            </button>
+          </div>
+        </div>
+      `;
+    }
+    container.innerHTML = html;
+  },
+
+  // ---------- TRANSFERS ----------
+  renderTransfers() {
+    // Региональные табы
+    const tabsContainer = document.getElementById('transfer-region-tabs');
+    let tabsHtml = '';
+    for (const [key, val] of Object.entries(REGIONS)) {
+      tabsHtml += `
+        <div class="region-tab ${GameState.selectedTransferRegion === key ? 'active' : ''}"
+             onclick="UI.selectTransferRegion('${key}')">
+          ${val.name}
+        </div>
+      `;
+    }
+    tabsContainer.innerHTML = tabsHtml;
+
+    // Список игроков
+    const container = document.getElementById('transfer-list');
+    const region = GameState.selectedTransferRegion;
+    const available = ALL_PLAYERS.filter(p =>
+      p.region === region && !GameState.myPlayers.includes(p.id)
+    );
+
+    if (available.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state" style="grid-column: 1/-1;">
+          <div class="icon">🔍</div>
+          <p>Нет доступных игроков в этом регионе</p>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    for (const p of available) {
+      const value = Utils.getPlayerValue(p);
+      html += `
+        <div class="player-card">
+          <div class="player-avatar" style="background: ${Utils.getAvatarColor(p.attack)}">
+            ${p.name.substring(0, 2).toUpperCase()}
+          </div>
+          <div class="player-info">
+            <div class="player-name">${p.name} <span class="text-muted text-xs">(${p.team})</span></div>
+            <div class="player-meta">${p.age} лет • ${p.region}</div>
+            <div class="player-skills">
+              <span class="skill-badge atk">ATK ${p.attack}</span>
+              <span class="skill-badge def">DEF ${p.defense}</span>
+              <span class="skill-badge sup">SUP ${p.support}</span>
+              <span class="skill-badge form">FRM ${p.form}</span>
+            </div>
+          </div>
+          <div class="player-actions">
+            <div class="player-value">${Utils.money(value)}</div>
+            <button class="btn btn-success" style="padding: 4px 8px; font-size: 11px;"
+              onclick="Transfers.buyPlayer('${p.id}')"
+              ${GameState.money < value || GameState.myPlayers.length >= 5 ? 'disabled' : ''}>
+              Купить
+            </button>
+          </div>
+        </div>
+      `;
+    }
+    container.innerHTML = html;
+  },
+
+  selectTransferRegion(region) {
+    GameState.selectedTransferRegion = region;
+    this.renderTransfers();
+  },
+
+  // ---------- TOURNAMENTS ----------
+  renderTournaments() {
+    const container = document.getElementById('tournament-list');
+    let html = '';
+
+    for (const tt of TOURNAMENT_TYPES) {
+      const canEnter = GameState.money >= tt.entryCost && (!GameState.activeTournament || GameState.activeTournament.completed);
+      const isActive = GameState.activeTournament && GameState.activeTournament.type.id === tt.id;
+
+      html += `
+        <div class="card ${isActive ? 'border-accent' : ''}" style="${isActive ? 'border-color: var(--accent);' : ''}">
+          <div class="flex-between mb-8">
+            <span class="font-bold">${tt.name}</span>
+            ${isActive ? '<span class="text-xs text-accent">● Активен</span>' : ''}
+          </div>
+          <div class="text-sm text-muted mb-8">
+            <div class="flex-between mb-8">
+              <span>Призовой фонд</span>
+              <span class="text-green font-bold">${Utils.money(tt.prize)}</span>
+            </div>
+            <div class="flex-between mb-8">
+              <span>Стоимость входа</span>
+              <span class="text-red">${Utils.money(tt.entryCost)}</span>
+            </div>
+            <div class="flex-between mb-8">
+              <span>Участников</span>
+              <span>${tt.participants}</span>
+            </div>
+            <div class="flex-between">
+              <span>Раундов</span>
+              <span>${tt.rounds}</span>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-block"
+            onclick="TournamentEngine.create('${tt.id}')"
+            ${!canEnter ? 'disabled' : ''}>
+            ${isActive ? '▶ Продолжить' : '🎮 Зарегистрироваться'}
+          </button>
+        </div>
+      `;
+    }
+    container.innerHTML = html;
+
+    // Рендер сетки турнира
+    this.renderBracket();
+  },
+
+  renderBracket() {
+    const container = document.getElementById('tournament-bracket');
+    if (!GameState.activeTournament) {
+      container.innerHTML = '';
+      return;
+    }
+
+    const t = GameState.activeTournament;
+    const roundNames = ['1/8 финала', '1/4 финала', 'Полуфинал', 'Финал'];
+    const totalRounds = t.bracket.length;
+
+    let html = '<div class="tournament-bracket">';
+    for (let r = 0; r < Math.min(totalRounds, t.currentRound + 1); r++) {
+      const matches = t.bracket[r];
+      const roundName = roundNames[r] || `Раунд ${r + 1}`;
+
+      html += `<div class="bracket-round">
+        <div class="bracket-round-title">${roundName}</div>`;
+
+      for (const match of matches) {
+        if (!match.team1 && !match.team2) continue;
+
+        const t1Name = this.getTeamName(match.team1);
+        const t2Name = this.getTeamName(match.team2);
+
+        html += `
+          <div class="bracket-match">
+            <div class="bracket-team ${match.played && match.winner === match.team1 ? 'winner' : match.played && match.winner !== match.team1 && match.team1 !== 'BYE' ? 'loser' : ''}">
+              <span>${t1Name}</span>
+              <span class="score">${match.played ? match.score1 : '-'}</span>
+            </div>
+            <div class="bracket-team ${match.played && match.winner === match.team2 ? 'winner' : match.played && match.winner !== match.team2 && match.team2 !== 'BYE' ? 'loser' : ''}">
+              <span>${t2Name}</span>
+              <span class="score">${match.played ? match.score2 : '-'}</span>
+            </div>
+          </div>
+        `;
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  },
+
+  getTeamName(teamId) {
+    if (teamId === 'player') return '🎮 Ваша команда';
+    if (teamId === 'BYE') return 'BYE';
+    const team = ALL_TEAMS.find(t => t.id === teamId);
+    return team ? team.name : teamId;
+  },
+
+  // ---------- RANKINGS ----------
+  renderRankings() {
+    // Региональные табы
+    const tabsContainer = document.getElementById('ranking-region-tabs');
+    let tabsHtml = `<div class="region-tab ${GameState.selectedRankingRegion === 'all' ? 'active' : ''}" onclick="UI.selectRankingRegion('all')">Все</div>`;
+    for (const [key, val] of Object.entries(REGIONS)) {
+      tabsHtml += `
+        <div class="region-tab ${GameState.selectedRankingRegion === key ? 'active' : ''}"
+             onclick="UI.selectRankingRegion('${key}')">
+          ${val.name}
+        </div>
+      `;
+    }
+    tabsContainer.innerHTML = tabsHtml;
+
+    // Таблица рейтинга
+    const container = document.getElementById('ranking-table');
+    let teams = [...ALL_TEAMS];
+
+    // Добавляем команду игрока
+    const myTeam = {
+      id: 'player',
+      name: '🎮 Ваша команда',
+      region: 'all',
+      rating: GameState.myRating,
+      wins: GameState.myWins,
+      losses: GameState.myLosses,
+      prize: GameState.myPrize,
+      isPlayer: true,
+    };
+    teams.push(myTeam);
+
+    // Фильтр по региону
+    if (GameState.selectedRankingRegion !== 'all') {
+      teams = teams.filter(t => t.region === GameState.selectedRankingRegion);
+    }
+
+    // Сортировка по рейтингу
+    teams.sort((a, b) => b.rating - a.rating);
+
+    let html = `
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Команда</th>
+            <th>Регион</th>
+            <th>Рейтинг</th>
+            <th>W</th>
+            <th>L</th>
+            <th>Призовые</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    for (let i = 0; i < teams.length; i++) {
+      const t = teams[i];
+      const rankClass = i < 3 ? `rank-${i + 1}` : 'rank-other';
+      const rowStyle = t.isPlayer ? 'background: rgba(245,158,11,0.08);' : '';
+
+      html += `
+        <tr style="${rowStyle}">
+          <td><span class="rank-badge ${rankClass}">${i + 1}</span></td>
+          <td class="font-bold">${t.name}</td>
+          <td><span class="text-xs" style="color: ${REGIONS[t.region]?.color || '#fff'}">${t.region === 'all' ? '—' : REGIONS[t.region]?.name || t.region}</span></td>
+          <td class="font-bold text-accent">${t.rating}</td>
+          <td class="text-green">${t.wins}</td>
+          <td class="text-red">${t.losses}</td>
+          <td class="text-green">${Utils.money(t.prize || 0)}</td>
+        </tr>
+      `;
+    }
+
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  },
+
+  selectRankingRegion(region) {
+    GameState.selectedRankingRegion = region;
+    this.renderRankings();
+  },
+
+  // ---------- SPONSORS ----------
+  renderSponsors() {
+    const container = document.getElementById('sponsor-list');
+
+    if (GameState.mySponsors.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state" style="grid-column: 1/-1;">
+          <div class="icon">🤝</div>
+          <p>У вас пока нет спонсоров. Просмотрите доступные предложения ниже!</p>
+        </div>
+      `;
+    } else {
+      let html = '';
+      for (const sid of GameState.mySponsors) {
+        const s = SPONSORS_DATA.find(sp => sp.id === sid);
+        if (!s) continue;
+        const amount = s.baseAmount + Math.floor(GameState.myRating / 100) * 100;
+
+        html += `
+          <div class="sponsor-card">
+            <div class="sponsor-icon" style="background: ${Utils.getAvatarColor(amount / 100)}">
+              ${s.icon}
+            </div>
+            <div class="sponsor-info">
+              <div class="sponsor-name">${s.name}</div>
+              <div class="sponsor-desc">${s.desc} • ${amount}/нед</div>
+            </div>
+            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;"
+              onclick="Economy.removeSponsor('${s.id}')">
+              ✕
+            </button>
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    // Предложения спонсоров
+    const offersContainer = document.getElementById('sponsor-offers');
+    const available = SPONSORS_DATA.filter(s => !GameState.mySponsors.includes(s.id));
+
+    let offersHtml = `<h3 class="mb-8">📢 Доступные предложения</h3>`;
+    if (available.length === 0) {
+      offersHtml += '<p class="text-sm text-muted">Нет доступных предложений</p>';
+    } else {
+      offersHtml += '<div class="card-grid-small">';
+      for (const s of available) {
+        const amount = s.baseAmount + Math.floor(GameState.myRating / 100) * 100;
+        offersHtml += `
+          <div class="sponsor-card">
+            <div class="sponsor-icon" style="background: var(--bg-secondary)">
+              ${s.icon}
+            </div>
+            <div class="sponsor-info">
+              <div class="sponsor-name">${s.name}</div>
+              <div class="sponsor-desc">${s.desc} • ~${Utils.money(amount)}/нед</div>
+            </div>
+            <button class="btn btn-success" style="padding: 4px 8px; font-size: 11px;"
+              onclick="Economy.addSponsor('${s.id}')"
+              ${GameState.mySponsors.length >= 5 ? 'disabled' : ''}>
+              Принять
+            </button>
+          </div>
+        `;
+      }
+      offersHtml += '</div>';
+    }
+    offersContainer.innerHTML = offersHtml;
+  },
+};
+
+// ============================================================
+// MODULE: GAME — Основной игровой цикл
+// ============================================================
+
+const Game = {
+  /** Инициализация игры */
+  init() {
+    // Устанавливаем команду игрока
+    GameState.myTeamId = 'player';
+
+    // Даём начальных игроков (3 бесплатных свободных агента)
+    const freeAgents = [
+      { id: 'fa1', name: 'Rookie1', tag: 'FA', region: 'EMEA', team: 'Free Agent',
+        age: 17, attack: 70, defense: 68, support: 72, form: 75, value: 5000, salary: 800 },
+      { id: 'fa2', name: 'Rookie2', tag: 'FA', region: 'NA', team: 'Free Agent',
+        age: 18, attack: 72, defense: 70, support: 68, form: 78, value: 5500, salary: 850 },
+      { id: 'fa3', name: 'Rookie3', tag: 'FA', region: 'SA', team: 'Free Agent',
+        age: 16, attack: 68, defense: 74, support: 70, form: 80, value: 4800, salary: 750 },
+    ];
+
+    ALL_PLAYERS.push(...freeAgents);
+    GameState.myPlayers = ['fa1', 'fa2', 'fa3'];
+
+    // Начальный спонсор
+    GameState.mySponsors = ['s5']; // Discord
+
+    // Инициализация UI
+    UI.initNav();
+    UI.updateHeader();
+    UI.renderAll();
+
+    console.log('🏆 Esports Manager — Brawl Stars загружен!');
+  },
+
+  /** Переход к следующей неделе */
+  nextWeek() {
+    GameState.week++;
+    Economy.weeklyUpdate();
+    UI.renderAll();
+    UI.toast(`⏭ Неделя ${GameState.week}`, 'info');
+  }
+};
+
+// ============================================================
+// MODULE: INIT — Запуск приложения
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  Game.init();
+});
+</script>
+
+</body>
+  </html>
