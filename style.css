@@ -1,0 +1,433 @@
+/* Базовые сбросы и тёмная тема */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0b0c10;
+  color: #c5c6c7;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+#app {
+  width: 100%;
+  max-width: 1000px;
+}
+
+/* Утилита скрытия */
+.hidden {
+  display: none !important;
+}
+
+/* Экран */
+.screen {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Контейнер для центрирования содержимого */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #1f2833;
+  padding: 30px;
+  border-radius: 12px;
+  border: 1px solid #45a29e;
+  box-shadow: 0 0 20px rgba(69, 162, 158, 0.2);
+}
+
+/* Заголовок в киберспортивном стиле */
+.cyber-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  color: #66fcf1;
+  text-align: center;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Формы */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #c5c6c7;
+}
+
+input[type="text"],
+select {
+  width: 100%;
+  padding: 10px 15px;
+  background: #0b0c10;
+  border: 1px solid #45a29e;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus,
+select:focus {
+  border-color: #66fcf1;
+}
+
+/* Файловый инпут */
+input[type="file"] {
+  color: #c5c6c7;
+}
+
+/* Превью аватарки */
+.avatar-preview {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.avatar-preview img {
+  max-width: 120px;
+  max-height: 120px;
+  border-radius: 50%;
+  border: 2px solid #66fcf1;
+}
+
+/* Радио-кнопки сложности */
+.difficulty-options {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  color: #c5c6c7;
+}
+
+/* Кнопки */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s, transform 0.1s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: #45a29e;
+  color: #0b0c10;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.btn-primary:hover {
+  background: #66fcf1;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid #45a29e;
+  color: #45a29e;
+  margin-top: 10px;
+}
+
+.btn-outline:hover {
+  background: rgba(69, 162, 158, 0.1);
+}
+
+.btn-small {
+  padding: 5px 12px;
+  font-size: 0.8rem;
+}
+
+.btn-danger {
+  background: #c0392b;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #e74c3c;
+}
+
+/* Dashboard */
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  background: #1f2833;
+  padding: 15px 25px;
+  border-radius: 10px;
+  border: 1px solid #45a29e;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.team-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.team-avatar-small {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #0b0c10;
+  border: 2px solid #66fcf1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #66fcf1;
+}
+
+.team-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.team-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.team-tag {
+  font-size: 0.9rem;
+  color: #66fcf1;
+  font-weight: bold;
+}
+
+.team-stats {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  gap: 5px;
+  font-size: 0.9rem;
+}
+
+.stat-label {
+  color: #45a29e;
+  font-weight: 600;
+}
+
+/* Навигация */
+.dashboard-nav {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 25px;
+}
+
+.nav-btn {
+  background: #1f2833;
+  border: 1px solid #45a29e;
+  color: #c5c6c7;
+  padding: 10px 20px;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.nav-btn.active {
+  background: #45a29e;
+  color: #0b0c10;
+}
+
+.nav-btn:hover:not(.active) {
+  background: #2a3a4a;
+}
+
+/* Содержимое вкладок */
+.dashboard-content {
+  background: #1f2833;
+  border-radius: 0 10px 10px 10px;
+  padding: 25px;
+  border: 1px solid #45a29e;
+}
+
+.view {
+  display: none;
+}
+
+.view.active-view {
+  display: block;
+  animation: fadeIn 0.25s ease;
+}
+
+.section-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.4rem;
+  color: #66fcf1;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #45a29e;
+  padding-bottom: 10px;
+}
+
+/* Состав команды */
+.roster {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.roster-main {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.roster-sub {
+  flex: 1;
+  min-width: 200px;
+}
+
+.roster-sub h4 {
+  color: #45a29e;
+  margin-bottom: 10px;
+}
+
+/* Карточка игрока */
+.player-card {
+  background: #0b0c10;
+  border-radius: 10px;
+  padding: 20px;
+  min-width: 150px;
+  text-align: center;
+  border: 1px solid #45a29e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.player-card.empty {
+  border-style: dashed;
+  opacity: 0.8;
+}
+
+.player-card.sub {
+  min-width: 120px;
+}
+
+.player-avatar-placeholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #1f2833;
+  border: 2px dashed #45a29e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #45a29e;
+}
+
+.player-name-placeholder {
+  color: #c5c6c7;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* Рынок и заглушки */
+.market-placeholder,
+.empty-state {
+  text-align: center;
+  padding: 30px;
+  color: #45a29e;
+  font-size: 1.1rem;
+  border: 2px dashed #45a29e;
+  border-radius: 10px;
+  margin-top: 15px;
+}
+
+/* Список турниров */
+.tournament-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.tournament-card {
+  background: #0b0c10;
+  border: 1px solid #45a29e;
+  padding: 15px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.tournament-card h4 {
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.status.upcoming {
+  background: #2c3e50;
+  color: #66fcf1;
+  border: 1px solid #66fcf1;
+}
+
+/* Адаптивность */
+@media (max-width: 700px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .roster-main {
+    flex-direction: column;
+    align-items: center;
+  }
+}
