@@ -35,24 +35,100 @@ const PREDEFINED_TEAMS = {
   ]
 };
 
-// Генерация случайного названия команды
-const prefixes = ['Cyber','Shadow','Storm','Frost','Thunder','Neon','Void','Quantum',
-  'Apex','Omega','Titan','Phantom','Inferno','Eclipse','Horizon','Nova',
-  'Blitz','Rage','Chaos','Zenith','Crystal','Blaze','Venom','Fusion',
-  'Pulse','Drift','Hive','Prism','Oblivion'];
+// Расширенные словари для генерации названий (никаких чисел)
+const firstParts = [
+  'Cyber', 'Shadow', 'Storm', 'Frost', 'Thunder', 'Neon', 'Void', 'Quantum',
+  'Apex', 'Omega', 'Titan', 'Phantom', 'Inferno', 'Eclipse', 'Horizon', 'Nova',
+  'Blitz', 'Rage', 'Chaos', 'Zenith', 'Crystal', 'Blaze', 'Venom', 'Fusion',
+  'Pulse', 'Drift', 'Hive', 'Prism', 'Oblivion', 'Hyper', 'Ultra', 'Zero',
+  'Nitro', 'Solar', 'Lunar', 'Astral', 'Dark', 'Light', 'Iron', 'Steel',
+  'Crimson', 'Azure', 'Onyx', 'Jade', 'Cobalt', 'Amber', 'Violet', 'Silver',
+  'Atomic', 'Turbo', 'Rapid', 'Silent', 'Deadly', 'Mystic', 'Arcane', 'Divine',
+  'Rising', 'Fallen', 'Wicked', 'Savage', 'Royal', 'Imperial', 'Rebel', 'Elite',
+  'Vector', 'Matrix', 'Binary', 'Digital', 'Core', 'Flux', 'Particle', 'Wave'
+];
 
-const suffixes = ['Esports','Gaming','Squad','Elite','Legion','Empire','Union','Crew',
-  'Army','Force','Clan','Brotherhood','Alliance','Team','Kings',
-  'Warriors','Gladiators','Dragons','Wolves','Titans'];
+const secondParts = [
+  'Esports', 'Gaming', 'Squad', 'Elite', 'Legion', 'Empire', 'Union', 'Crew',
+  'Army', 'Force', 'Clan', 'Alliance', 'Team', 'Kings', 'Warriors', 'Gladiators',
+  'Dragons', 'Wolves', 'Titans', 'Panthers', 'Eagles', 'Sharks', 'Hawks', 'Vipers',
+  'Hunters', 'Raiders', 'Guardians', 'Sentinels', 'Reapers', 'Ghosts', 'Ninjas',
+  'Samurai', 'Knights', 'Berserkers', 'Mercenaries', 'Snipers', 'Strikers',
+  'Assassins', 'Defenders', 'Invaders', 'Conquerors', 'Legends', 'Mythics',
+  'Eternals', 'Immortals', 'Phoenix', 'Thunderbirds', 'Cyclones', 'Tornadoes',
+  'Avalanches', 'Tsunamis', 'Infernos', 'Blizzards', 'Earthquakes', 'Maelstroms',
+  'Overlords', 'Dominators', 'Annihilators', 'Exterminators', 'Punishers',
+  'Executioners', 'Vanquishers', 'Wardens', 'Keepers', 'Watchers', 'Oracles',
+  'Prophets', 'Mystics', 'Sorcerers', 'Warlocks', 'Alchemists', 'Artificers',
+  'Engineers', 'Pilots', 'Astronauts', 'Cosmonauts', 'Explorers', 'Pioneers',
+  'Trailblazers', 'Pathfinders', 'Wayfarers', 'Vagabonds', 'Nomads', 'Outlaws'
+];
 
+// Дополнительные одиночные слова для совсем уникальных имён (одно слово)
+const singleWords = [
+  'Oblivion', 'Zenith', 'Elysium', 'Nirvana', 'Odyssey', 'Nebula', 'Quasar',
+  'Pulsar', 'Vertex', 'Axiom', 'Paradox', 'Enigma', 'Cipher', 'Mirage', 'Phantom',
+  'Spectre', 'Wraith', 'Banshee', 'Revenant', 'Leviathan', 'Behemoth', 'Colossus',
+  'Juggernaut', 'Goliath', 'Hydra', 'Chimera', 'Kraken', 'Basilisk', 'Manticore',
+  'Cerberus', 'Minotaur', 'Cyclops', 'Titan', 'Atlas', 'Hercules', 'Achilles',
+  'Spartan', 'Trojan', 'Viking', 'Ronin', 'Shogun', 'Emperor', 'Pharaoh', 'Sultan',
+  'Czar', 'Kaiser', 'Majesty', 'Monarch', 'Sovereign', 'Regent', 'Overlord',
+  'Warlord', 'Archon', 'Patriarch', 'Hierarch', 'Magnate', 'Tycoon', 'Baron',
+  'Duke', 'Count', 'Viscount', 'Marquis', 'Earl', 'Knight', 'Paladin', 'Templar',
+  'Inquisitor', 'Crusader', 'Exorcist', 'Prophet', 'Oracle', 'Sage', 'Mystic',
+  'Wizard', 'Sorcerer', 'Warlock', 'Necromancer', 'Pyromancer', 'Cryomancer',
+  'Electromancer', 'Geomancer', 'Aeromancer', 'Hydromancer', 'Chronomancer',
+  'Illusionist', 'Conjurer', 'Summoner', 'Invoker', 'Evoker', 'Enchanter',
+  'Spellbinder', 'Runesmith', 'Glyphmaster', 'Sigilweaver'
+];
+
+/**
+ * Генерирует случайное уникальное название команды.
+ * Использует различные паттерны: двойные слова, одиночные концептуальные названия.
+ * Без чисел.
+ * @param {string} region - регион (не используется, но оставлен для совместимости)
+ * @param {Set} existingNames - множество уже занятых имён
+ * @returns {string} уникальное название
+ */
 function generateRandomTeamName(region, existingNames) {
+  // Паттерны распределены так, чтобы получить разнообразие:
+  // 40% - "ПерваяЧасть ВтораяЧасть" (Cyber Wolves, Shadow Hunters и т.п.)
+  // 30% - одиночное слово из singleWords
+  // 30% - комбинация из двух singleWords через пробел (Nebula Paradox, Zenith Mirage)
+  
   let name;
+  let attempts = 0;
+  const maxAttempts = 1000; // защита от бесконечного цикла
+  
   do {
-    const p = prefixes[Math.floor(Math.random() * prefixes.length)];
-    const s = suffixes[Math.floor(Math.random() * suffixes.length)];
-    const num = Math.random() < 0.3 ? ' ' + Math.floor(Math.random() * 100) : '';
-    name = `${p} ${s}${num}`;
+    const pattern = Math.random();
+    
+    if (pattern < 0.4) {
+      // Первая часть + Вторая часть
+      const p = firstParts[Math.floor(Math.random() * firstParts.length)];
+      const s = secondParts[Math.floor(Math.random() * secondParts.length)];
+      name = `${p} ${s}`;
+    } else if (pattern < 0.7) {
+      // Одиночное слово
+      name = singleWords[Math.floor(Math.random() * singleWords.length)];
+    } else {
+      // Два одиночных слова
+      const w1 = singleWords[Math.floor(Math.random() * singleWords.length)];
+      let w2;
+      do {
+        w2 = singleWords[Math.floor(Math.random() * singleWords.length)];
+      } while (w2 === w1);
+      name = `${w1} ${w2}`;
+    }
+    
+    attempts++;
+    if (attempts >= maxAttempts) {
+      // Если не нашли уникальное имя за допустимое число попыток, добавляем счётчик
+      name += ' #' + Math.floor(Math.random() * 9999);
+      break;
+    }
   } while (existingNames.has(name));
+  
   return name;
 }
 
