@@ -5,12 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Brawl Stars Киберспорт Менеджер</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Шрифт в киберспортивном стиле -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="app">
-    <!-- Экран создания команды (показывается, если нет сохранённой команды) -->
+    <!-- Экран создания команды -->
     <div id="screen-create" class="screen">
       <div class="container">
         <h1 class="cyber-title">Создание команды</h1>
@@ -75,6 +74,7 @@
         <div class="team-stats">
           <div class="stat"><span class="stat-label">Регион:</span> <span id="header-region"></span></div>
           <div class="stat"><span class="stat-label">Баланс:</span> <span id="header-balance"></span> монет</div>
+          <div class="stat"><span class="stat-label">Сила:</span> <span id="header-power">0</span></div>
           <div class="stat"><span class="stat-label">Дата:</span> <span id="header-date">01.01.2026</span></div>
         </div>
         <button id="btn-reset" class="btn btn-small btn-danger">Сброс</button>
@@ -83,6 +83,7 @@
         <button class="nav-btn active" data-view="team">Команда</button>
         <button class="nav-btn" data-view="market">Рынок</button>
         <button class="nav-btn" data-view="tournaments">Турниры</button>
+        <button class="nav-btn" data-view="ratings">Рейтинг</button>
       </nav>
       <main class="dashboard-content">
         <!-- Вкладка Команда -->
@@ -90,7 +91,6 @@
           <h3 class="section-title">Состав команды</h3>
           <div class="roster">
             <div class="roster-main">
-              <!-- Пустые карточки игроков (3 основных) -->
               <div class="player-card empty">
                 <div class="player-avatar-placeholder">+</div>
                 <div class="player-name-placeholder">Пустой слот</div>
@@ -106,7 +106,6 @@
             </div>
             <div class="roster-sub">
               <h4>Запас</h4>
-              <!-- Запасной слот -->
               <div class="player-card empty sub">
                 <div class="player-avatar-placeholder">+</div>
                 <div class="player-name-placeholder">Запасной слот</div>
@@ -144,6 +143,35 @@
               <span class="status upcoming">Скоро</span>
               <p>Любительский турнир</p>
             </div>
+          </div>
+        </section>
+
+        <!-- Вкладка Рейтинг -->
+        <section id="view-ratings" class="view">
+          <h3 class="section-title">Рейтинг команд</h3>
+          <div class="rating-controls">
+            <label for="region-select">Регион:</label>
+            <select id="region-select">
+              <option value="EMEA">EMEA</option>
+              <option value="East Asia">East Asia</option>
+              <option value="SA">South America</option>
+              <option value="NA">North America</option>
+            </select>
+          </div>
+          <div id="rating-table-container" class="rating-table-container">
+            <table class="rating-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Команда</th>
+                  <th>Сила</th>
+                  <th>Тир</th>
+                </tr>
+              </thead>
+              <tbody id="rating-body">
+                <!-- Динамическое заполнение -->
+              </tbody>
+            </table>
           </div>
         </section>
       </main>
