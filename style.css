@@ -1,4 +1,3 @@
-/* Базовые сбросы и тёмная тема */
 * {
   margin: 0;
   padding: 0;
@@ -18,15 +17,13 @@ body {
 
 #app {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1100px;
 }
 
-/* Утилита скрытия */
 .hidden {
   display: none !important;
 }
 
-/* Экран */
 .screen {
   animation: fadeIn 0.3s ease;
 }
@@ -36,7 +33,6 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Контейнер для центрирования содержимого */
 .container {
   max-width: 600px;
   margin: 0 auto;
@@ -47,7 +43,6 @@ body {
   box-shadow: 0 0 20px rgba(69, 162, 158, 0.2);
 }
 
-/* Заголовок в киберспортивном стиле */
 .cyber-title {
   font-family: 'Orbitron', sans-serif;
   font-size: 2rem;
@@ -58,7 +53,6 @@ body {
   letter-spacing: 2px;
 }
 
-/* Формы */
 .form-group {
   margin-bottom: 20px;
 }
@@ -88,12 +82,10 @@ select:focus {
   border-color: #66fcf1;
 }
 
-/* Файловый инпут */
 input[type="file"] {
   color: #c5c6c7;
 }
 
-/* Превью аватарки */
 .avatar-preview {
   margin-top: 10px;
   text-align: center;
@@ -106,7 +98,6 @@ input[type="file"] {
   border: 2px solid #66fcf1;
 }
 
-/* Радио-кнопки сложности */
 .difficulty-options {
   display: flex;
   gap: 15px;
@@ -121,7 +112,6 @@ input[type="file"] {
   color: #c5c6c7;
 }
 
-/* Кнопки */
 .btn {
   padding: 10px 20px;
   border: none;
@@ -174,7 +164,6 @@ input[type="file"] {
   background: #e74c3c;
 }
 
-/* Dashboard */
 .dashboard-header {
   display: flex;
   align-items: center;
@@ -252,7 +241,6 @@ input[type="file"] {
   font-weight: 600;
 }
 
-/* Навигация */
 .dashboard-nav {
   display: flex;
   gap: 5px;
@@ -280,7 +268,6 @@ input[type="file"] {
   background: #2a3a4a;
 }
 
-/* Содержимое вкладок */
 .dashboard-content {
   background: #1f2833;
   border-radius: 0 10px 10px 10px;
@@ -306,7 +293,6 @@ input[type="file"] {
   padding-bottom: 10px;
 }
 
-/* Состав команды */
 .roster {
   display: flex;
   gap: 30px;
@@ -329,7 +315,6 @@ input[type="file"] {
   margin-bottom: 10px;
 }
 
-/* Карточка игрока */
 .player-card {
   background: #0b0c10;
   border-radius: 10px;
@@ -371,7 +356,6 @@ input[type="file"] {
   font-style: italic;
 }
 
-/* Рынок и заглушки */
 .market-placeholder,
 .empty-state {
   text-align: center;
@@ -383,7 +367,6 @@ input[type="file"] {
   margin-top: 15px;
 }
 
-/* Список турниров */
 .tournament-list {
   display: flex;
   flex-direction: column;
@@ -420,7 +403,60 @@ input[type="file"] {
   border: 1px solid #66fcf1;
 }
 
-/* Адаптивность */
+/* Стили для рейтинга */
+.rating-controls {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.rating-controls label {
+  color: #66fcf1;
+  font-weight: bold;
+}
+
+.rating-controls select {
+  width: auto;
+  min-width: 180px;
+}
+
+.rating-table-container {
+  max-height: 60vh;
+  overflow-y: auto;
+  border: 1px solid #45a29e;
+  border-radius: 8px;
+}
+
+.rating-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rating-table th {
+  background: #0b0c10;
+  color: #45a29e;
+  padding: 10px;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.rating-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #2c3e50;
+}
+
+.rating-table tr:hover td {
+  background: #1a2a3a;
+}
+
+.player-team-row {
+  border: 2px solid #66fcf1;
+  font-weight: bold;
+}
+
 @media (max-width: 700px) {
   .dashboard-header {
     flex-direction: column;
