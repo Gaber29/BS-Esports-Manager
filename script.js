@@ -66,11 +66,9 @@ function generateRegionTeams(region, playerTeam = null) {
   predefinedNames.forEach((name, index) => {
     let tier, power;
     if (index < 8) {
-      // Топ-8 получают S тир, мощность от 10000 до 9300
       tier = 'S';
-      power = 10000 - index * 100; // 10000, 9900, 9800...
+      power = 10000 - index * 100;
     } else {
-      // Остальные 8 - A тир, мощность от 9200 до 8500
       tier = 'A';
       power = 9200 - (index - 8) * 100;
     }
@@ -86,8 +84,8 @@ function generateRegionTeams(region, playerTeam = null) {
     nameSet.add(name);
   });
 
-  // 2. Генерируем случайные команды (1024, либо 1023 если будет игрок)
-  const randomCount = playerTeam ? 1023 : 1024;
+  // 2. Генерируем случайные команды (всего 1040 минус предопределённые минус команда игрока)
+  const randomCount = playerTeam && playerTeam.region === region ? 1023 : 1024;
   for (let i = 0; i < randomCount; i++) {
     const name = generateRandomTeamName(region, nameSet);
     nameSet.add(name);
@@ -109,15 +107,14 @@ function generateRegionTeams(region, playerTeam = null) {
     });
   }
 
-  // 3. Если есть команда игрока, добавляем её (сортировка позже)
+  // 3. Команда игрока (если есть и подходит по региону)
   if (playerTeam && playerTeam.region === region) {
-    // Убедимся, что команда игрока в нужном формате
     const playerTeamEntry = {
       id: 'player',
-      name: playerTeam.name + ' [' + playerTeam.tag + ']', // Отображаем с тегом
+      name: playerTeam.name + ' [' + playerTeam.tag + ']',
       region: playerTeam.region,
-      tier: '?', // пока неизвестно
-      power: 0,   // базовая сила 0
+      tier: '?',
+      power: playerTeam.power || 0,
       isPlayer: true,
       isPredefined: false
     };
@@ -129,41 +126,33 @@ function generateRegionTeams(region, playerTeam = null) {
   return teams;
 }
 
-// Инициализация или загрузка всех команд
-function initializeAllTeams(playerTeam) {
-  // Пытаемся загрузить из localStorage
-  const saved = localStorage.getItem(TEAMS_STORAGE_KEY);
-  if (saved) {
-    try {
-      allTeams = JSON.parse(saved);
-      // Проверяем, есть ли команда игрока (если игрок существует)
-      if (playerTeam && !allTeams.some(t => t.isPlayer)) {
-        // Если игрок есть, но его нет в сохранённом списке (например, обновление данных)
-        // Перегенерируем полностью
-      } else {
-        return; // используем сохранённые
-      }
-    } catch (e) {}
+// Безопасное сохранение в localStorage
+function safeSetItem(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch (e) {
+    console.warn('Не удалось сохранить данные в localStorage:', e);
   }
+}
 
-  // Генерация с нуля
+// Пересоздание всех команд с учётом команды игрока (если передана)
+function regenerateAllTeams(playerTeam) {
   allTeams = [];
   REGIONS.forEach(region => {
-    const teams = generateRegionTeams(region, playerTeam && playerTeam.region === region ? playerTeam : null);
+    const teams = generateRegionTeams(region, playerTeam);
     allTeams.push(...teams);
   });
-  saveAllTeams();
+  safeSetItem(TEAMS_STORAGE_KEY, JSON.stringify(allTeams));
 }
 
-// Сохранение списка команд в localStorage
-function saveAllTeams() {
-  localStorage.setItem(TEAMS_STORAGE_KEY, JSON.stringify(allTeams));
-}
-
-// Получение команд игрока из localStorage
+// Получение команды игрока из localStorage
 function getPlayerTeam() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : null;
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : null;
+  } catch (e) {
+    return null;
+  }
 }
 
 // ============== ИНТЕРФЕЙС ==============
@@ -191,30 +180,15 @@ function renderDashboard(team) {
     placeholder.style.display = 'flex';
   }
 
-  // Находим команду игрока в глобальном списке и обновляем power (если надо)
-  updatePlayerPower(team);
+  // Обновим силу игрока (пока 0)
+  team.power = 0;
+  safeSetItem(STORAGE_KEY, JSON.stringify(team));
+
+  // Перегенерируем весь список с учётом игрока
+  regenerateAllTeams(team);
   switchView('team');
 }
 
-function updatePlayerPower(playerTeam) {
-  // В будущем power будет рассчитываться на основе игроков, сейчас просто 0
-  playerTeam.power = 0;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(playerTeam));
-  // Обновим в allTeams
-  const playerEntry = allTeams.find(t => t.isPlayer);
-  if (playerEntry) {
-    playerEntry.power = playerTeam.power;
-    // пересортируем и сохраним
-    sortAndSave();
-  }
-}
-
-function sortAndSave() {
-  allTeams.sort((a, b) => b.power - a.power);
-  saveAllTeams();
-}
-
-// Переключение вкладок
 function switchView(viewName) {
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.view === viewName);
@@ -228,21 +202,29 @@ function switchView(viewName) {
   }
 }
 
-// Заполнение выпадающего списка регионов для рейтинга
 function populateRegionSelect() {
   const select = document.getElementById('region-select');
   const playerTeam = getPlayerTeam();
   select.value = playerTeam ? playerTeam.region : 'EMEA';
 }
 
-// Отображение таблицы рейтинга
 function refreshRatingTable() {
   const region = document.getElementById('region-select').value;
   const tbody = document.getElementById('rating-body');
   tbody.innerHTML = '';
 
+  // Защита от пустого массива
+  if (!allTeams || allTeams.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Нет данных о командах. Пожалуйста, пересоздайте команду.</td></tr>';
+    return;
+  }
+
   const regionTeams = allTeams.filter(t => t.region === region);
-  // Уже отсортированы по power
+  if (regionTeams.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">В этом регионе пока нет команд.</td></tr>';
+    return;
+  }
+
   regionTeams.forEach((team, index) => {
     const row = document.createElement('tr');
     if (team.isPlayer) row.classList.add('player-team-row');
@@ -267,13 +249,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let playerTeam = getPlayerTeam();
 
-  // Инициализация глобального списка команд
-  initializeAllTeams(playerTeam);
-
   if (playerTeam) {
+    // Игрок уже существует: генерируем всё с нуля, чтобы точно были данные
+    regenerateAllTeams(playerTeam);
     showScreen('screen-dashboard');
     renderDashboard(playerTeam);
   } else {
+    // Если игрока нет, allTeams оставляем пустым (рейтинг недоступен)
     showScreen('screen-create');
   }
 
@@ -326,11 +308,9 @@ document.addEventListener('DOMContentLoaded', () => {
       players: []
     };
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(team));
+    safeSetItem(STORAGE_KEY, JSON.stringify(team));
+    regenerateAllTeams(team);
 
-    // Перегенерируем allTeams с учётом новой команды игрока
-    initializeAllTeams(team);
-    
     showScreen('screen-dashboard');
     renderDashboard(team);
   });
