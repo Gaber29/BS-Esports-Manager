@@ -11,7 +11,7 @@ const ROLE_COEFFS = {
   Flex: { clutch: 3.2, gameSense: 3.0, teamwork: 3.0, aim: 2.8, positioning: 2.8, reaction: 2.6, aggression: 2.6 }
 };
 
-// Страны по регионам
+// Страны по регионам (упрощённый набор ключевых стран)
 const COUNTRIES = {
   EMEA: [
     'Украина','Германия','Испания','Франция','Италия','Польша','Великобритания','Нидерланды','Швеция',
@@ -27,7 +27,7 @@ const COUNTRIES = {
        'Коста-Рика','Панама','Багамы','Тринидад и Тобаго','Барбадос','Никарагуа','Белиз','Гренада','Гаити','Бермуды']
 };
 
-// Флаги
+// Флаги (эмодзи)
 const FLAGS = {
   'Украина':'🇺🇦','Германия':'🇩🇪','Испания':'🇪🇸','Франция':'🇫🇷','Италия':'🇮🇹','Польша':'🇵🇱',
   'Великобритания':'🇬🇧','Нидерланды':'🇳🇱','Швеция':'🇸🇪','Норвегия':'🇳🇴','Финляндия':'🇫🇮',
@@ -61,107 +61,28 @@ function safeGetItem(key) { try { return localStorage.getItem(key); } catch(e) {
 function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-// Словари для названий команд
-const firstParts = [
-  'Cyber','Shadow','Storm','Frost','Thunder','Neon','Void','Quantum',
-  'Apex','Omega','Titan','Phantom','Inferno','Eclipse','Horizon','Nova',
-  'Blitz','Rage','Chaos','Zenith','Crystal','Blaze','Venom','Fusion',
-  'Pulse','Drift','Hive','Prism','Oblivion','Hyper','Ultra','Zero',
-  'Nitro','Solar','Lunar','Astral','Dark','Light','Iron','Steel',
-  'Crimson','Azure','Onyx','Jade','Cobalt','Amber','Violet','Silver',
-  'Atomic','Turbo','Rapid','Silent','Deadly','Mystic','Arcane','Divine',
-  'Rising','Fallen','Wicked','Savage','Royal','Imperial','Rebel','Elite',
-  'Vector','Matrix','Binary','Digital','Core','Flux','Particle','Wave'
-];
-
-const secondParts = [
-  'Esports','Gaming','Squad','Elite','Legion','Empire','Union','Crew',
-  'Army','Force','Clan','Alliance','Team','Kings','Warriors','Gladiators',
-  'Dragons','Wolves','Titans','Panthers','Eagles','Sharks','Hawks','Vipers',
-  'Hunters','Raiders','Guardians','Sentinels','Reapers','Ghosts','Ninjas',
-  'Samurai','Knights','Berserkers','Mercenaries','Snipers','Strikers',
-  'Assassins','Defenders','Invaders','Conquerors','Legends','Mythics',
-  'Eternals','Immortals','Phoenix','Thunderbirds','Cyclones','Tornadoes',
-  'Avalanches','Tsunamis','Infernos','Blizzards','Earthquakes','Maelstroms',
-  'Overlords','Dominators','Annihilators','Exterminators','Punishers',
-  'Executioners','Vanquishers','Wardens','Keepers','Watchers','Oracles',
-  'Prophets','Mystics','Sorcerers','Warlocks','Alchemists','Artificers',
-  'Engineers','Pilots','Astronauts','Cosmonauts','Explorers','Pioneers',
-  'Trailblazers','Pathfinders','Wayfarers','Vagabonds','Nomads','Outlaws'
-];
-
-const singleWords = [
-  'Oblivion','Zenith','Elysium','Nirvana','Odyssey','Nebula','Quasar',
-  'Pulsar','Vertex','Axiom','Paradox','Enigma','Cipher','Mirage','Phantom',
-  'Spectre','Wraith','Banshee','Revenant','Leviathan','Behemoth','Colossus',
-  'Juggernaut','Goliath','Hydra','Chimera','Kraken','Basilisk','Manticore',
-  'Cerberus','Minotaur','Cyclops','Titan','Atlas','Hercules','Achilles',
-  'Spartan','Trojan','Viking','Ronin','Shogun','Emperor','Pharaoh','Sultan',
-  'Czar','Kaiser','Majesty','Monarch','Sovereign','Regent','Overlord',
-  'Warlord','Archon','Patriarch','Hierarch','Magnate','Tycoon','Baron',
-  'Duke','Count','Viscount','Marquis','Earl','Knight','Paladin','Templar',
-  'Inquisitor','Crusader','Exorcist','Prophet','Oracle','Sage','Mystic',
-  'Wizard','Sorcerer','Warlock','Necromancer','Pyromancer','Cryomancer',
-  'Electromancer','Geomancer','Aeromancer','Hydromancer','Chronomancer',
-  'Illusionist','Conjurer','Summoner','Invoker','Evoker','Enchanter',
-  'Spellbinder','Runesmith','Glyphmaster','Sigilweaver'
-];
-
-/**
- * Генерация уникального названия команды
- * @param {string} region - регион (не используется, для совместимости)
- * @param {Set} existingNames - множество уже занятых имён
- * @returns {string}
- */
-function generateRandomTeamName(region, existingNames) {
-  let name;
-  let attempts = 0;
-  const maxAttempts = 1000;
-
-  do {
-    const pattern = Math.random();
-    if (pattern < 0.4) {
-      const p = pickRandom(firstParts);
-      const s = pickRandom(secondParts);
-      name = `${p} ${s}`;
-    } else if (pattern < 0.7) {
-      name = pickRandom(singleWords);
-    } else {
-      const w1 = pickRandom(singleWords);
-      let w2;
-      do { w2 = pickRandom(singleWords); } while (w2 === w1);
-      name = `${w1} ${w2}`;
-    }
-    attempts++;
-    if (attempts >= maxAttempts) {
-      name += ' #' + randomInt(1000, 9999);
-      break;
-    }
-  } while (existingNames.has(name));
-
-  existingNames.add(name);
-  return name;
-}
-
-// Генерация навыка с учётом роли
-function generateSkillForRole(role, skillName) {
+// Генерация веса для навыка с учётом роли (чем выше коэф, тем выше вероятность высокого значения)
+function generateSkillForRole(role, skillName, targetPowerRange) {
   const coeff = ROLE_COEFFS[role][skillName];
+  // Базовое распределение: случайно от 0 до 1000, но с повышением вероятности высоких значений
   let base = Math.random() * 1000;
+  // Домножаем на коэффициент/5 (чтобы коэф 4.5 давал примерно в 4.5 раза больше шансов на высокое значение)
   base = base * (coeff / 5);
+  // Ограничиваем 0-1000
   return Math.min(1000, Math.max(0, Math.round(base)));
 }
 
-// Расчёт силы игрока
+// Рассчитать общую силу игрока по навыкам
 function calculatePlayerPower(skills, role) {
   const coeffs = ROLE_COEFFS[role];
   let sum = 0;
   for (let skill in coeffs) {
     sum += (skills[skill] || 0) * coeffs[skill];
   }
-  return Math.round(sum * 5);
+  return Math.round(sum * 5); // максимум около 100000
 }
 
-// Тир игрока
+// Определить тир игрока по силе
 function getPlayerTier(power) {
   if (power >= 85000) return 'S';
   if (power >= 70000) return 'A';
@@ -170,11 +91,13 @@ function getPlayerTier(power) {
   return 'D';
 }
 
-// Создание игрока с заданной целью силы (для топов)
+// Создание игрока с заданной целью силы (для топ-команд)
 function createTargetPlayer(nick, country, role, targetPower, nameOverride) {
   const skills = {};
-  for (let skill in ROLE_COEFFS[role]) skills[skill] = 0;
-
+  for (let skill in ROLE_COEFFS[role]) {
+    skills[skill] = 0;
+  }
+  // Грубая настройка: итеративно подгоняем навыки
   let currentPower = 0;
   let attempts = 0;
   while (Math.abs(currentPower - targetPower) > 100 && attempts < 200) {
@@ -186,10 +109,37 @@ function createTargetPlayer(nick, country, role, targetPower, nameOverride) {
   }
   const power = currentPower;
   const tier = getPlayerTier(power);
+  const name = nameOverride || nick; // если имя не указано, используем ник
   return {
     id: `player_${Date.now()}_${Math.random().toString(36)}`,
     nick,
-    name: nameOverride || nick,
+    name,
+    country,
+    age: randomInt(16, 30),
+    role,
+    skills: { ...skills },
+    power,
+    tier,
+    teamId: null, // будет назначен позже
+    isFreeAgent: false
+  };
+}
+
+// Создание случайного игрока для генерации массовых команд
+function createRandomPlayer(region, role, maxPower) {
+  const country = pickRandom(COUNTRIES[region]);
+  const nick = generateRandomNick(country);
+  const skills = {};
+  for (let skill in ROLE_COEFFS[role]) {
+    skills[skill] = generateSkillForRole(role, skill);
+  }
+  let power = calculatePlayerPower(skills, role);
+  if (power > maxPower) power = maxPower - randomInt(0, 1000);
+  const tier = getPlayerTier(power);
+  return {
+    id: `player_${Date.now()}_${Math.random().toString(36)}`,
+    nick,
+    name: nick,
     country,
     age: randomInt(16, 30),
     role,
@@ -201,44 +151,20 @@ function createTargetPlayer(nick, country, role, targetPower, nameOverride) {
   };
 }
 
-// Создание случайного игрока для массовых команд
-function createRandomPlayer(region, role, maxPower) {
-  const country = pickRandom(COUNTRIES[region]);
-  const nick = generateRandomNick();
-  const skills = {};
-  for (let skill in ROLE_COEFFS[role]) {
-    skills[skill] = generateSkillForRole(role, skill);
-  }
-  let power = calculatePlayerPower(skills, role);
-  if (power > maxPower) power = maxPower - randomInt(0, 1000);
-  return {
-    id: `player_${Date.now()}_${Math.random().toString(36)}`,
-    nick,
-    name: nick,
-    country,
-    age: randomInt(16, 30),
-    role,
-    skills: { ...skills },
-    power,
-    tier: getPlayerTier(power),
-    teamId: null,
-    isFreeAgent: false
-  };
-}
-
-// Случайный ник
+// Генератор случайного ника (упрощённый)
+const nickPrefixes = ['Pro', 'Ace', 'King', 'Shadow', 'Storm', 'Frost', 'Blitz', 'Neo', 'Cyber', 'Nitro'];
+const nickSuffixes = ['Xs', 'io', 'er', 'max', '99', 'z', 'x', '007', 'Q', 'Z'];
 function generateRandomNick() {
-  return pickRandom(['Pro','Ace','King','Shadow','Storm','Frost','Blitz','Neo','Cyber','Nitro']) +
-         pickRandom(['Xs','io','er','max','z','x','Q']) + randomInt(0, 99);
+  return pickRandom(nickPrefixes) + pickRandom(nickSuffixes) + randomInt(0,99);
 }
 
 // ============== ПРЕДОПРЕДЕЛЁННЫЕ СОСТАВЫ ТОП-24 ==============
 function createPredefinedTeams() {
   const predefined = [];
+  // Вспомогательная функция для добавления команды
   function addTeam(name, region, playersData) {
-    const teamId = `team_${name.replace(/\s/g, '_')}`;
     const team = {
-      id: teamId,
+      id: `team_${name.replace(/\s/g,'_')}`,
       name,
       region,
       tier: 'S',
@@ -250,7 +176,7 @@ function createPredefinedTeams() {
     let totalPower = 0;
     playersData.forEach(pd => {
       const player = createTargetPlayer(pd.nick, pd.country, pd.role, pd.targetPower, pd.name);
-      player.teamId = teamId;
+      player.teamId = team.id;
       allPlayers.push(player);
       team.players.push(player.id);
       totalPower += player.power;
@@ -259,6 +185,7 @@ function createPredefinedTeams() {
     predefined.push(team);
   }
 
+  // Заполняем топ-24 (сила примерно 270000-300000)
   addTeam('FUT Esports','EMEA',[
     {nick:'Guesti',country:'Украина',role:'Aggressor',targetPower:98000,name:'Mykhaylo Chernov'},
     {nick:'Angelboy',country:'Украина',role:'Flex',targetPower:96000,name:'Yaroslav Labunets'},
@@ -382,7 +309,7 @@ function createPredefinedTeams() {
   return predefined;
 }
 
-// ============== ГЕНЕРАЦИЯ ВСЕХ ДАННЫХ ==============
+// ============== ГЕНЕРАЦИЯ ОСТАЛЬНЫХ КОМАНД И ИГРОКОВ ==============
 function generateAllData(playerTeamObj) {
   allPlayers = [];
   allTeams = [];
@@ -390,26 +317,24 @@ function generateAllData(playerTeamObj) {
   // 1. Предопределённые команды
   allTeams.push(...createPredefinedTeams());
 
-  // 2. Генерация случайных команд (до 1040 на регион)
+  // 2. Генерация остальных команд (до 1040 на регион)
   REGIONS.forEach(region => {
-    const existingNames = new Set(allTeams.filter(t => t.region === region).map(t => t.name));
     const predefinedCount = allTeams.filter(t => t.region === region).length;
-    // Сколько ещё надо команд (1040 всего, включая предопределённые и команду игрока)
-    let totalNeeded = 1040;
-    if (playerTeamObj && playerTeamObj.region === region) totalNeeded -= 1; // учтём игрока
-    const randomCount = totalNeeded - predefinedCount;
-
+    const totalNeeded = playerTeamObj && playerTeamObj.region === region ? 1040 : 1040; // ровно 1040 команд в регионе
+    const randomCount = totalNeeded - predefinedCount - (playerTeamObj && playerTeamObj.region === region ? 1 : 0);
+    
     for (let i = 0; i < randomCount; i++) {
-      const teamName = generateRandomTeamName(region, existingNames);
+      const teamName = generateRandomTeamName(region);
+      // определим тир команды в зависимости от её порядкового номера (примерно)
       let targetTeamPower;
-      if (i < 10) {
-        targetTeamPower = randomInt(210000, 269999); // A
-      } else if (i < 100) {
-        targetTeamPower = randomInt(150000, 209999); // B
+      if (i < 10) { // 10 команд уровня A
+        targetTeamPower = randomInt(210000, 269999);
+      } else if (i < 100) { // 90 команд B
+        targetTeamPower = randomInt(150000, 209999);
       } else {
         targetTeamPower = randomInt(75000, 149999); // C и D
       }
-
+      // Создаём трёх игроков (roles: Aggr, Flex, Contr)
       const roles = ['Aggressor','Flex','Controller'];
       const teamId = `team_rnd_${region}_${i}`;
       const team = {
@@ -422,11 +347,10 @@ function generateAllData(playerTeamObj) {
         isPredefined: false,
         players: []
       };
-
       let remainingPower = targetTeamPower;
       for (let j = 0; j < 3; j++) {
         const role = roles[j];
-        let maxPlayerPower = remainingPower - (2 - j) * 1000;
+        let maxPlayerPower = remainingPower - (2-j)*1000; // чтобы суммарно вышла targetTeamPower
         if (maxPlayerPower > 95000) maxPlayerPower = 95000;
         const player = createRandomPlayer(region, role, maxPlayerPower);
         player.teamId = teamId;
@@ -434,17 +358,18 @@ function generateAllData(playerTeamObj) {
         team.players.push(player.id);
         remainingPower -= player.power;
       }
-      team.power = allPlayers.filter(p => p.teamId === teamId).reduce((sum, p) => sum + p.power, 0);
+      team.power = allPlayers.filter(p => p.teamId === teamId).reduce((sum,p)=>sum+p.power,0);
       allTeams.push(team);
     }
   });
 
-  // 3. Свободные агенты (по 30 на регион)
+  // 3. Свободные агенты (F/A) по регионам
+  const freeAgentCount = 30; // по 30 на регион
   REGIONS.forEach(region => {
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < freeAgentCount; i++) {
       const role = pickRandom(['Aggressor','Controller','Flex']);
       const country = pickRandom(COUNTRIES[region]);
-      const nick = generateRandomNick();
+      const nick = generateRandomNick(country);
       const skills = {};
       for (let skill in ROLE_COEFFS[role]) skills[skill] = generateSkillForRole(role, skill);
       const power = calculatePlayerPower(skills, role);
@@ -464,7 +389,7 @@ function generateAllData(playerTeamObj) {
     }
   });
 
-  // 4. Команда игрока (заглушка, если нет игроков)
+  // 4. Если есть команда игрока, добавляем её в allTeams (пока без игроков)
   if (playerTeamObj) {
     const playerTeamEntry = {
       id: 'player',
@@ -474,54 +399,63 @@ function generateAllData(playerTeamObj) {
       power: 0,
       isPlayer: true,
       isPredefined: false,
-      players: playerTeamObj.players || []
+      players: playerTeamObj.players || [] // ссылки на id игроков
     };
+    // Добавим в allTeams (может уже быть, проверим)
     const existingIdx = allTeams.findIndex(t => t.isPlayer);
     if (existingIdx >= 0) allTeams[existingIdx] = playerTeamEntry;
     else allTeams.push(playerTeamEntry);
+    // Обновим силу
     recalcPlayerTeamPower();
   }
 
-  allTeams.sort((a, b) => b.power - a.power);
+  // Сортируем allTeams по убыванию силы
+  allTeams.sort((a,b) => b.power - a.power);
   saveData();
 }
 
 function recalcPlayerTeamPower() {
-  const playerInAll = allTeams.find(t => t.isPlayer);
-  if (playerInAll && playerTeam) {
-    const powers = playerInAll.players.map(pid => {
+  const playerTeamInAll = allTeams.find(t => t.isPlayer);
+  if (playerTeamInAll) {
+    const powers = playerTeamInAll.players.map(pid => {
       const p = allPlayers.find(pl => pl.id === pid);
       return p ? p.power : 0;
     });
-    playerInAll.power = powers.reduce((a, b) => a + b, 0);
-    playerTeam.power = playerInAll.power;
-    safeSetItem(STORAGE_KEY, JSON.stringify(playerTeam));
+    playerTeamInAll.power = powers.reduce((a,b)=>a+b,0);
+    // Обновим также playerTeam глобальный объект
+    if (playerTeam) {
+      playerTeam.power = playerTeamInAll.power;
+      safeSetItem(STORAGE_KEY, JSON.stringify(playerTeam));
+    }
   }
 }
 
-// ============== РЫНОК ==============
+// ============== ЛОГИКА РЫНКА ==============
 function hireFreeAgent(playerId) {
   if (!playerTeam) return;
   const agent = allPlayers.find(p => p.id === playerId && p.isFreeAgent);
   if (!agent) return;
+  // Проверяем, есть ли свободный слот (основа 3, запас 1)
   const currentCount = playerTeam.players ? playerTeam.players.length : 0;
   if (currentCount >= 4) {
-    alert('Нет свободных слотов!');
+    alert('Нет свободных слотов! Освободите место.');
     return;
   }
+  // Цена: базовая 500 + сила/20 монет
   const cost = 500 + Math.floor(agent.power / 20);
   if (playerTeam.balance < cost) {
     alert(`Недостаточно средств! Нужно ${cost} монет.`);
     return;
   }
   playerTeam.balance -= cost;
+  // Добавляем игрока в команду
   agent.isFreeAgent = false;
   agent.teamId = 'player';
   if (!playerTeam.players) playerTeam.players = [];
   playerTeam.players.push(agent.id);
-
-  const playerInAll = allTeams.find(t => t.isPlayer);
-  if (playerInAll) playerInAll.players = playerTeam.players;
+  // Обновляем allTeams
+  const playerTeamInAll = allTeams.find(t => t.isPlayer);
+  if (playerTeamInAll) playerTeamInAll.players = playerTeam.players;
   recalcPlayerTeamPower();
   safeSetItem(STORAGE_KEY, JSON.stringify(playerTeam));
   saveData();
@@ -549,10 +483,12 @@ function loadData() {
 function refreshUI() {
   if (!playerTeam) return;
   renderDashboard(playerTeam);
+  // Если активен рынок или рейтинг, обновить их
   const activeView = document.querySelector('.view.active-view');
   if (activeView) {
-    if (activeView.id === 'view-market') refreshMarket();
-    else if (activeView.id === 'view-ratings') refreshRatingTable();
+    const viewId = activeView.id;
+    if (viewId === 'view-market') refreshMarket();
+    else if (viewId === 'view-ratings') refreshRatingTable();
   }
 }
 
@@ -574,14 +510,16 @@ function renderDashboard(team) {
     avatarImg.style.display = 'none';
     placeholder.style.display = 'flex';
   }
+
   renderRoster(team);
 }
 
 function renderRoster(team) {
   const container = document.getElementById('roster-main');
   container.innerHTML = '';
+  // Показываем три слота основы
   for (let i = 0; i < 3; i++) {
-    const playerId = team.players?.[i];
+    const playerId = team.players ? team.players[i] : null;
     if (playerId) {
       const player = allPlayers.find(p => p.id === playerId);
       if (player) {
@@ -589,13 +527,15 @@ function renderRoster(team) {
         continue;
       }
     }
+    // Пустой слот
     const emptyCard = document.createElement('div');
     emptyCard.className = 'player-card empty';
     emptyCard.innerHTML = '<div class="player-avatar-placeholder">+</div><div class="player-name-placeholder">Пустой слот</div>';
     container.appendChild(emptyCard);
   }
+  // Запасной слот
   const reserveSlot = document.getElementById('reserve-slot');
-  const reservePlayerId = team.players?.[3];
+  const reservePlayerId = team.players ? team.players[3] : null;
   if (reservePlayerId) {
     const player = allPlayers.find(p => p.id === reservePlayerId);
     if (player) {
@@ -630,8 +570,8 @@ function showPlayerModal(player) {
   document.getElementById('modal-age').textContent = player.age;
   document.getElementById('modal-role').textContent = player.role;
   document.getElementById('modal-tier').textContent = player.tier;
-  const teamName = player.teamId ? (allTeams.find(t => t.id === player.teamId)?.name || 'Неизвестно') : (player.isFreeAgent ? 'Свободный агент' : 'Нет команды');
-  document.getElementById('modal-team').textContent = teamName;
+  const team = player.teamId ? (allTeams.find(t => t.id === player.teamId)?.name || 'Неизвестно') : (player.isFreeAgent ? 'Свободный агент' : 'Нет команды');
+  document.getElementById('modal-team').textContent = team;
   document.getElementById('skill-aim').textContent = player.skills.aim;
   document.getElementById('skill-reaction').textContent = player.skills.reaction;
   document.getElementById('skill-gameSense').textContent = player.skills.gameSense;
@@ -643,11 +583,12 @@ function showPlayerModal(player) {
   document.getElementById('player-modal').classList.remove('hidden');
 }
 
+// Рынок
 function refreshMarket() {
   const region = document.getElementById('market-region-select').value;
   const container = document.getElementById('free-agents-list');
   container.innerHTML = '';
-  const agents = allPlayers.filter(p => p.isFreeAgent && COUNTRIES[region].includes(p.country));
+  const agents = allPlayers.filter(p => p.isFreeAgent && (region === 'all' || COUNTRIES[region].includes(p.country)));
   agents.forEach(agent => {
     const card = document.createElement('div');
     card.className = 'agent-card';
@@ -660,15 +601,20 @@ function refreshMarket() {
     container.appendChild(card);
   });
   document.querySelectorAll('.hire-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => hireFreeAgent(e.target.dataset.id));
+    btn.addEventListener('click', (e) => {
+      const id = e.target.dataset.id;
+      hireFreeAgent(id);
+    });
   });
 }
 
+// Рейтинг
 function refreshRatingTable() {
   const region = document.getElementById('region-select').value;
   const tbody = document.getElementById('rating-body');
   tbody.innerHTML = '';
-  const teamsToShow = region === 'all' ? allTeams : allTeams.filter(t => t.region === region);
+  let teamsToShow = allTeams;
+  if (region !== 'all') teamsToShow = allTeams.filter(t => t.region === region);
   teamsToShow.forEach((team, index) => {
     const row = document.createElement('tr');
     if (team.isPlayer) row.classList.add('player-team-row');
@@ -684,6 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!loadData()) {
     generateAllData(playerTeam);
   } else if (playerTeam) {
+    // Обновляем команду игрока в allTeams
     const playerInAll = allTeams.find(t => t.isPlayer);
     if (playerInAll) {
       playerInAll.players = playerTeam.players;
@@ -698,6 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('screen-create');
   }
 
+  // Обработчики...
   setupEventListeners();
 });
 
@@ -707,6 +655,7 @@ function getPlayerTeamFromStorage() {
 }
 
 function setupEventListeners() {
+  // Превью аватарки
   document.getElementById('team-avatar').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -718,13 +667,14 @@ function setupEventListeners() {
     reader.readAsDataURL(file);
   });
 
+  // Создание команды
   document.getElementById('create-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const name = document.getElementById('team-name').value.trim();
     const tag = document.getElementById('team-tag').value.trim();
     const region = document.getElementById('region').value;
     const diff = document.querySelector('input[name="difficulty"]:checked')?.value || 'easy';
-    const balance = { easy: 5000, medium: 3000, hard: 1000 }[diff];
+    const balance = { easy:5000, medium:3000, hard:1000 }[diff];
     const avatar = document.getElementById('avatar-img').src || null;
 
     if (!name || !tag || !region) return alert('Заполните все поля');
@@ -743,12 +693,18 @@ function setupEventListeners() {
     renderDashboard(playerTeam);
   });
 
+  // Навигация
   document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchView(btn.dataset.view));
+    btn.addEventListener('click', () => {
+      switchView(btn.dataset.view);
+    });
   });
 
-  document.getElementById('btn-add-player').addEventListener('click', () => switchView('market'));
+  document.getElementById('btn-add-player').addEventListener('click', () => {
+    switchView('market');
+  });
 
+  // Сброс
   document.getElementById('btn-reset').addEventListener('click', () => {
     if (confirm('Сбросить всё?')) {
       localStorage.clear();
@@ -756,9 +712,13 @@ function setupEventListeners() {
     }
   });
 
+  // Рынок переключение региона
   document.getElementById('market-region-select').addEventListener('change', refreshMarket);
+
+  // Рейтинг переключение региона
   document.getElementById('region-select').addEventListener('change', refreshRatingTable);
 
+  // Закрытие модалки
   document.querySelector('.close-btn').addEventListener('click', () => {
     document.getElementById('player-modal').classList.add('hidden');
   });
@@ -767,8 +727,7 @@ function setupEventListeners() {
 function switchView(viewName) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === viewName));
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
-  const target = document.getElementById(`view-${viewName}`);
-  if (target) target.classList.add('active-view');
+  document.getElementById(`view-${viewName}`).classList.add('active-view');
   if (viewName === 'market') refreshMarket();
   if (viewName === 'ratings') refreshRatingTable();
 }
@@ -776,4 +735,4 @@ function switchView(viewName) {
 function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
   document.getElementById(screenId).classList.remove('hidden');
-        }
+      }
