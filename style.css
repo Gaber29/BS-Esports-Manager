@@ -384,27 +384,22 @@ input[type="file"] {
   font-style: italic;
 }
 
-/* Рынок */
 .market-controls {
-  margin-bottom: 15px;
   display: flex;
-  align-items: center;
-  gap: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.market-controls label {
-  color: #66fcf1;
-  font-weight: bold;
-}
-
+.market-controls input,
 .market-controls select {
-  width: auto;
-  min-width: 180px;
+  flex: 1;
+  min-width: 150px;
 }
 
 .free-agents-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 15px;
 }
 
@@ -415,7 +410,7 @@ input[type="file"] {
   padding: 15px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
 }
 
 .agent-card .btn {
@@ -423,7 +418,6 @@ input[type="file"] {
   margin-top: auto;
 }
 
-/* Модальное окно */
 .modal {
   position: fixed;
   top: 0;
@@ -442,7 +436,7 @@ input[type="file"] {
   border: 1px solid #66fcf1;
   border-radius: 12px;
   padding: 25px;
-  max-width: 450px;
+  max-width: 500px;
   width: 90%;
   position: relative;
   animation: fadeIn 0.3s;
@@ -457,21 +451,11 @@ input[type="file"] {
   color: #45a29e;
 }
 
-.player-details h3 {
-  font-family: 'Orbitron', sans-serif;
-  color: #66fcf1;
-  margin-bottom: 15px;
-}
-
-.player-details p {
-  margin: 5px 0;
-}
-
 .skills-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 5px;
-  margin: 15px 0;
+  margin: 10px 0;
 }
 
 .skills-grid div {
@@ -480,7 +464,6 @@ input[type="file"] {
   border-radius: 4px;
 }
 
-/* Таблицы */
 .rating-table-container {
   max-height: 60vh;
   overflow-y: auto;
@@ -512,12 +495,15 @@ input[type="file"] {
   background: #1a2a3a;
 }
 
+.rating-table tr.clickable {
+  cursor: pointer;
+}
+
 .player-team-row {
   border: 2px solid #66fcf1;
   font-weight: bold;
 }
 
-/* Адаптивность */
 @media (max-width: 700px) {
   .dashboard-header {
     flex-direction: column;
