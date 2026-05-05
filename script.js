@@ -12,7 +12,7 @@ const ROLE_COEFFS = {
   Flex: { clutch: 3.2, gameSense: 3.0, teamwork: 3.0, aim: 2.8, positioning: 2.8, reaction: 2.6, aggression: 2.6 }
 };
 
-// Полные списки стран по регионам с примерными весами
+// Страны с весами (полный список из ваших требований)
 const COUNTRIES_WEIGHTS = {
   EMEA: [
     { name: 'Украина', flag: '🇺🇦', weight: 40 },
@@ -65,7 +65,7 @@ const COUNTRIES_WEIGHTS = {
     { name: 'Уганда', flag: '🇺🇬', weight: 10 },
     { name: 'Танзания', flag: '🇹🇿', weight: 10 },
     { name: 'Эфиопия', flag: '🇪🇹', weight: 15 },
-    // Остальные страны из вашего списка (вес 1-3)...
+    // Остальные страны EMEA (вес 1-3 для малонаселённых)
     { name: 'Афганистан', flag: '🇦🇫', weight: 3 },
     { name: 'Албания', flag: '🇦🇱', weight: 3 },
     { name: 'Андорра', flag: '🇦🇩', weight: 1 },
@@ -219,7 +219,6 @@ const NOUNS = ['Wolf','Hawk','Tiger','Viper','Panther','Eagle','Shark','Dragon',
 function generateRandomNick() {
   const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
   const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
-  // 5% шанс добавить число
   if (Math.random() < 0.05) return `${adj}${noun}${Math.floor(Math.random()*90+10)}`;
   return `${adj}${noun}`;
 }
@@ -233,7 +232,7 @@ function pickWeighted(arr) {
     if (rand < item.weight) return item;
     rand -= item.weight;
   }
-  return arr[0];
+  return arr[0] || { name: 'Неизвестно', flag: '🏳️' };
 }
 
 // Расчет силы игрока
@@ -244,7 +243,6 @@ function calcPlayerPower(skills, role) {
   return Math.round(sum * 5);
 }
 
-// Лучшая роль по навыкам
 function getBestRole(skills) {
   let bestRole = 'Flex';
   let bestPower = 0;
@@ -258,7 +256,6 @@ function getBestRole(skills) {
   return bestRole;
 }
 
-// Тиры
 function getPlayerTier(power) {
   if (power >= 85000) return 'S';
   if (power >= 70000) return 'A';
@@ -274,17 +271,18 @@ function getTeamTier(power) {
   return 'D';
 }
 
-// Создание игрока с примерной целевой силой
+// Создание игрока
 function createPlayerForTeam(countryData, targetPower) {
+  if (!countryData) countryData = { name: 'Неизвестно', flag: '🏳️' };
   const skills = {};
-  let role = 'Flex';
-  for (let attempt = 0; attempt < 50; attempt++) {
-    role = ROLES[Math.floor(Math.random() * 3)];
+  let role = ROLES[Math.floor(Math.random() * 3)];
+  for (let attempt = 0; attempt < 200; attempt++) {
     for (let skill in ROLE_COEFFS[role]) {
       skills[skill] = randomInt(100, 1000);
     }
     const power = calcPlayerPower(skills, role);
-    if (Math.abs(power - targetPower) < 3000) break;
+    if (Math.abs(power - targetPower) < 5000) break;
+    role = ROLES[Math.floor(Math.random() * 3)];
   }
   const power = calcPlayerPower(skills, role);
   return {
@@ -310,7 +308,7 @@ let allTeams = [];
 let allPlayers = [];
 let playerTeam = null;
 
-// ========== ПРЕДОПРЕДЕЛЁННЫЕ ТОП-24 КОМАНДЫ ==========
+// ========== ПРЕДОПРЕДЕЛЁННЫЕ ТОП-24 ==========
 function createPredefinedTeams() {
   const teams = [];
   function addTeam(name, region, playersData) {
@@ -327,14 +325,13 @@ function createPredefinedTeams() {
     };
     let totalPower = 0;
     playersData.forEach(pd => {
-      const countryData = COUNTRIES_WEIGHTS[region].find(c => c.name === pd.country) || { name: pd.country, flag: '🏳️' };
+      const countryData = COUNTRIES_WEIGHTS[region]?.find(c => c.name === pd.country) || { name: pd.country, flag: '🏳️' };
       const player = createPlayerForTeam(countryData, pd.targetPower);
       player.nick = pd.nick;
       player.name = pd.name || pd.nick;
       player.country = pd.country;
-      player.flag = countryData.flag || '🏳️';
+      player.flag = countryData.flag;
       player.teamId = teamId;
-      // корректируем силу, чтобы быть ближе к targetPower
       player.power = Math.min(pd.targetPower, 100000);
       allPlayers.push(player);
       team.players.push(player.id);
@@ -345,7 +342,7 @@ function createPredefinedTeams() {
     teams.push(team);
   }
 
-  // 24 команды S-тира
+  // 24 S-тир команды
   addTeam('FUT Esports','EMEA', [
     {nick:'Guesti',country:'Украина',targetPower:98000,name:'Mykhaylo Chernov'},
     {nick:'Angelboy',country:'Украина',targetPower:96000,name:'Yaroslav Labunets'},
@@ -467,7 +464,7 @@ function createPredefinedTeams() {
     {nick:'Jusorange',country:'Франция',targetPower:86500}
   ]);
 
-  // A-тир команды (места 25-64)
+  // Команды A-тира (25-64)
   const aTeamsCount = { EMEA: 12, 'East Asia': 10, SA: 8, NA: 10 };
   for (let region of REGIONS) {
     for (let i = 0; i < aTeamsCount[region]; i++) {
@@ -577,27 +574,35 @@ function loadData() {
   return false;
 }
 
-// ========== ИНИЦИАЛИЗАЦИЯ ==========
+// ========== ГЕНЕРАЦИЯ ВСЕХ ДАННЫХ ==========
 function generateAllData() {
-  allTeams = [];
-  allPlayers = [];
-  allTeams.push(...createPredefinedTeams());
-  generateRemainingTeams();
-  generateFreeAgents();
-  if (playerTeam) {
-    const playerEntry = {
-      id: 'player',
-      name: `${playerTeam.name} [${playerTeam.tag}]`,
-      region: playerTeam.region,
-      power: 0,
-      points: 0,
-      players: playerTeam.players || [],
-      isPlayer: true
-    };
-    allTeams.push(playerEntry);
+  try {
+    allTeams = [];
+    allPlayers = [];
+    allTeams.push(...createPredefinedTeams());
+    generateRemainingTeams();
+    generateFreeAgents();
+    if (playerTeam) {
+      const playerEntry = {
+        id: 'player',
+        name: `${playerTeam.name} [${playerTeam.tag}]`,
+        region: playerTeam.region,
+        power: 0,
+        points: 0,
+        players: playerTeam.players || [],
+        isPlayer: true
+      };
+      allTeams.push(playerEntry);
+    }
+    allTeams.sort((a,b) => b.power - a.power);
+    saveData();
+    console.log('Данные успешно сгенерированы');
+    return true;
+  } catch (e) {
+    console.error('Ошибка генерации данных:', e);
+    alert('Произошла ошибка при создании мира игры. Обновите страницу.');
+    return false;
   }
-  allTeams.sort((a,b) => b.power - a.power);
-  saveData();
 }
 
 // ========== ОТОБРАЖЕНИЕ ==========
@@ -624,7 +629,7 @@ function renderRoster() {
     if (pid) {
       const player = allPlayers.find(p => p.id === pid);
       if (player) {
-        main.appendChild(createPlayerCard(player, true));
+        main.appendChild(createPlayerCard(player));
         continue;
       }
     }
@@ -635,7 +640,7 @@ function renderRoster() {
   const reserveId = pTeam.players[3];
   if (reserveId) {
     const player = allPlayers.find(p => p.id === reserveId);
-    if (player) reserve.appendChild(createPlayerCard(player, true));
+    if (player) reserve.appendChild(createPlayerCard(player));
     else reserve.appendChild(createEmptyCard());
   } else {
     reserve.appendChild(createEmptyCard());
@@ -659,6 +664,7 @@ function createEmptyCard() {
   return card;
 }
 
+// Модальное окно игрока
 function showPlayerModal(player) {
   const modal = document.getElementById('player-modal');
   const content = document.getElementById('modal-player-details');
@@ -713,7 +719,6 @@ function refreshMarket() {
     `;
     container.appendChild(card);
   });
-  // обработчики кнопок
   document.querySelectorAll('.hire-btn').forEach(b => {
     b.addEventListener('click', () => hireFreeAgent(b.dataset.id));
   });
@@ -813,11 +818,20 @@ document.querySelectorAll('.close-btn').forEach(btn => {
 document.addEventListener('DOMContentLoaded', () => {
   const savedPlayer = localStorage.getItem(STORAGE_KEY);
   if (savedPlayer) {
-    playerTeam = JSON.parse(savedPlayer);
-    if (!loadData()) generateAllData();
-    else {
+    try {
+      playerTeam = JSON.parse(savedPlayer);
+    } catch (e) {
+      playerTeam = null;
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    if (!loadData()) {
+      generateAllData();
+    } else {
       const pt = allTeams.find(t => t.isPlayer);
-      if (pt) { pt.players = playerTeam.players; recalcTeamPower(pt); }
+      if (pt) {
+        pt.players = playerTeam.players;
+        recalcTeamPower(pt);
+      }
     }
     showScreen('screen-dashboard');
     renderDashboard();
@@ -825,20 +839,46 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('screen-create');
   }
 
-  // Форма создания
-  document.getElementById('create-form').addEventListener('submit', e => {
+  // Форма создания команды
+  document.getElementById('create-form').addEventListener('submit', function(e) {
     e.preventDefault();
+    console.log('Форма отправлена');
     const name = document.getElementById('team-name').value.trim();
     const tag = document.getElementById('team-tag').value.trim();
     const region = document.getElementById('region').value;
-    const diff = document.querySelector('input[name="difficulty"]:checked')?.value || 'easy';
+    const difficultyEl = document.querySelector('input[name="difficulty"]:checked');
+    const diff = difficultyEl ? difficultyEl.value : 'easy';
     const balance = { easy: 15000, medium: 10000, hard: 5000 }[diff];
-    const avatar = document.getElementById('avatar-img').src || null;
-    if (!name || !tag || !region) return alert('Заполните все поля');
-    if (tag.length < 2 || tag.length > 5) return alert('Тег 2-5 символов');
-    playerTeam = { name, tag, region, balance, avatarDataUrl: avatar, date: 'Январь 2026', players: [] };
+    const avatarInput = document.getElementById('team-avatar');
+    const avatarImg = document.getElementById('avatar-img');
+    let avatarDataUrl = null;
+    if (avatarInput && avatarImg && avatarImg.src && avatarImg.src !== '' && !avatarImg.src.endsWith('#')) {
+      avatarDataUrl = avatarImg.src;
+    }
+
+    if (!name || !tag || !region) {
+      alert('Заполните все поля');
+      return;
+    }
+    if (tag.length < 2 || tag.length > 5) {
+      alert('Тег должен быть от 2 до 5 символов');
+      return;
+    }
+
+    playerTeam = {
+      name,
+      tag,
+      region,
+      balance,
+      avatarDataUrl,
+      date: 'Январь 2026',
+      players: []
+    };
+
+    const success = generateAllData();
+    if (!success) return;
+
     localStorage.setItem(STORAGE_KEY, JSON.stringify(playerTeam));
-    generateAllData();
     showScreen('screen-dashboard');
     renderDashboard();
   });
@@ -851,39 +891,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Рынок фильтры
   ['market-search','market-region-filter','market-role-filter','market-tier-filter'].forEach(id => {
-    document.getElementById(id).addEventListener('input', refreshMarket);
-    document.getElementById(id).addEventListener('change', refreshMarket);
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', refreshMarket);
+      el.addEventListener('change', refreshMarket);
+    }
   });
 
-  document.getElementById('region-select').addEventListener('change', refreshRatingTable);
+  const regionSelect = document.getElementById('region-select');
+  if (regionSelect) regionSelect.addEventListener('change', refreshRatingTable);
 
   document.getElementById('btn-reset').addEventListener('click', () => {
-    if (confirm('Сбросить всё?')) { localStorage.clear(); location.reload(); }
+    if (confirm('Сбросить весь прогресс?')) {
+      localStorage.clear();
+      location.reload();
+    }
   });
 
   // Превью аватарки
-  document.getElementById('team-avatar')?.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = ev => {
-        document.getElementById('avatar-img').src = ev.target.result;
-        document.getElementById('avatar-preview').classList.remove('hidden');
-      };
-      reader.readAsDataURL(file);
-    }
-  });
+  const teamAvatarInput = document.getElementById('team-avatar');
+  if (teamAvatarInput) {
+    teamAvatarInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const preview = document.getElementById('avatar-preview');
+          const img = document.getElementById('avatar-img');
+          img.src = ev.target.result;
+          preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
 });
 
 function switchView(view) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
-  document.getElementById(`view-${view}`).classList.add('active-view');
+  const viewEl = document.getElementById(`view-${view}`);
+  if (viewEl) viewEl.classList.add('active-view');
   if (view === 'market') refreshMarket();
   if (view === 'ratings') refreshRatingTable();
 }
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
-      }
+  const screenEl = document.getElementById(id);
+  if (screenEl) screenEl.classList.remove('hidden');
+    }
