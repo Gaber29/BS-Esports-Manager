@@ -12,7 +12,7 @@ const ROLE_COEFFS = {
   Flex: { clutch: 3.2, gameSense: 3.0, teamwork: 3.0, aim: 2.8, positioning: 2.8, reaction: 2.6, aggression: 2.6 }
 };
 
-// Страны с весами (полный список из ваших требований)
+// Страны с весами (упрощённый вариант для стабильности)
 const COUNTRIES_WEIGHTS = {
   EMEA: [
     { name: 'Украина', flag: '🇺🇦', weight: 40 },
@@ -23,6 +23,13 @@ const COUNTRIES_WEIGHTS = {
     { name: 'Польша', flag: '🇵🇱', weight: 45 },
     { name: 'Великобритания', flag: '🇬🇧', weight: 65 },
     { name: 'Нидерланды', flag: '🇳🇱', weight: 20 },
+    { name: 'Турция', flag: '🇹🇷', weight: 50 },
+    { name: 'Израиль', flag: '🇮🇱', weight: 15 },
+    { name: 'Саудовская Аравия', flag: '🇸🇦', weight: 25 },
+    { name: 'Египет', flag: '🇪🇬', weight: 30 },
+    { name: 'Марокко', flag: '🇲🇦', weight: 20 },
+    { name: 'Нигерия', flag: '🇳🇬', weight: 40 },
+    { name: 'ЮАР', flag: '🇿🇦', weight: 20 },
     { name: 'Швеция', flag: '🇸🇪', weight: 15 },
     { name: 'Норвегия', flag: '🇳🇴', weight: 10 },
     { name: 'Финляндия', flag: '🇫🇮', weight: 10 },
@@ -42,104 +49,12 @@ const COUNTRIES_WEIGHTS = {
     { name: 'Латвия', flag: '🇱🇻', weight: 5 },
     { name: 'Эстония', flag: '🇪🇪', weight: 4 },
     { name: 'Словения', flag: '🇸🇮', weight: 3 },
-    { name: 'Люксембург', flag: '🇱🇺', weight: 2 },
-    { name: 'Мальта', flag: '🇲🇹', weight: 1 },
-    { name: 'Исландия', flag: '🇮🇸', weight: 1 },
-    { name: 'Кипр', flag: '🇨🇾', weight: 2 },
-    { name: 'Турция', flag: '🇹🇷', weight: 50 },
-    { name: 'Израиль', flag: '🇮🇱', weight: 15 },
-    { name: 'ОАЭ', flag: '🇦🇪', weight: 10 },
-    { name: 'Саудовская Аравия', flag: '🇸🇦', weight: 25 },
-    { name: 'Катар', flag: '🇶🇦', weight: 5 },
-    { name: 'Египет', flag: '🇪🇬', weight: 30 },
-    { name: 'Марокко', flag: '🇲🇦', weight: 20 },
-    { name: 'Алжир', flag: '🇩🇿', weight: 15 },
-    { name: 'Тунис', flag: '🇹🇳', weight: 10 },
-    { name: 'Нигерия', flag: '🇳🇬', weight: 40 },
-    { name: 'Гана', flag: '🇬🇭', weight: 12 },
-    { name: 'Кения', flag: '🇰🇪', weight: 15 },
-    { name: 'ЮАР', flag: '🇿🇦', weight: 20 },
-    { name: 'Кот-д\'Ивуар', flag: '🇨🇮', weight: 8 },
-    { name: 'Камерун', flag: '🇨🇲', weight: 10 },
-    { name: 'Сенегал', flag: '🇸🇳', weight: 8 },
-    { name: 'Уганда', flag: '🇺🇬', weight: 10 },
-    { name: 'Танзания', flag: '🇹🇿', weight: 10 },
-    { name: 'Эфиопия', flag: '🇪🇹', weight: 15 },
-    // Остальные страны EMEA (вес 1-3 для малонаселённых)
-    { name: 'Афганистан', flag: '🇦🇫', weight: 3 },
-    { name: 'Албания', flag: '🇦🇱', weight: 3 },
-    { name: 'Андорра', flag: '🇦🇩', weight: 1 },
-    { name: 'Армения', flag: '🇦🇲', weight: 3 },
-    { name: 'Азербайджан', flag: '🇦🇿', weight: 5 },
-    { name: 'Бахрейн', flag: '🇧🇭', weight: 2 },
-    { name: 'Бенин', flag: '🇧🇯', weight: 3 },
-    { name: 'Босния и Герцеговина', flag: '🇧🇦', weight: 3 },
-    { name: 'Ботсвана', flag: '🇧🇼', weight: 1 },
-    { name: 'Буркина-Фасо', flag: '🇧🇫', weight: 3 },
-    { name: 'Бурунди', flag: '🇧🇮', weight: 2 },
-    { name: 'Кабо-Верде', flag: '🇨🇻', weight: 1 },
-    { name: 'ЦАР', flag: '🇨🇫', weight: 2 },
-    { name: 'Чад', flag: '🇹🇩', weight: 2 },
-    { name: 'Коморы', flag: '🇰🇲', weight: 1 },
-    { name: 'Конго', flag: '🇨🇩', weight: 5 },
     { name: 'Хорватия', flag: '🇭🇷', weight: 5 },
-    { name: 'Джибути', flag: '🇩🇯', weight: 1 },
-    { name: 'Экваториальная Гвинея', flag: '🇬🇶', weight: 1 },
-    { name: 'Эритрея', flag: '🇪🇷', weight: 2 },
-    { name: 'Эсватини', flag: '🇸🇿', weight: 1 },
-    { name: 'Фарерские Острова', flag: '🇫🇴', weight: 1 },
-    { name: 'Габон', flag: '🇬🇦', weight: 1 },
-    { name: 'Гамбия', flag: '🇬🇲', weight: 1 },
-    { name: 'Грузия', flag: '🇬🇪', weight: 4 },
-    { name: 'Гибралтар', flag: '🇬🇮', weight: 1 },
-    { name: 'Гренландия', flag: '🇬🇱', weight: 1 },
-    { name: 'Гвинея', flag: '🇬🇳', weight: 3 },
-    { name: 'Гвинея-Бисау', flag: '🇬🇼', weight: 1 },
-    { name: 'Ирак', flag: '🇮🇶', weight: 5 },
-    { name: 'Остров Мэн', flag: '🇮🇲', weight: 1 },
-    { name: 'Джерси', flag: '🇯🇪', weight: 1 },
-    { name: 'Иордания', flag: '🇯🇴', weight: 4 },
-    { name: 'Казахстан', flag: '🇰🇿', weight: 10 },
-    { name: 'Косово', flag: '🇽🇰', weight: 2 },
-    { name: 'Кувейт', flag: '🇰🇼', weight: 3 },
-    { name: 'Киргизия', flag: '🇰🇬', weight: 3 },
-    { name: 'Ливан', flag: '🇱🇧', weight: 5 },
-    { name: 'Лесото', flag: '🇱🇸', weight: 1 },
-    { name: 'Либерия', flag: '🇱🇷', weight: 2 },
-    { name: 'Ливия', flag: '🇱🇾', weight: 3 },
-    { name: 'Лихтенштейн', flag: '🇱🇮', weight: 1 },
-    { name: 'Мадагаскар', flag: '🇲🇬', weight: 5 },
-    { name: 'Малави', flag: '🇲🇼', weight: 3 },
-    { name: 'Мали', flag: '🇲🇱', weight: 3 },
-    { name: 'Мавритания', flag: '🇲🇷', weight: 2 },
-    { name: 'Маврикий', flag: '🇲🇺', weight: 1 },
-    { name: 'Молдова', flag: '🇲🇩', weight: 3 },
-    { name: 'Монако', flag: '🇲🇨', weight: 1 },
-    { name: 'Черногория', flag: '🇲🇪', weight: 1 },
-    { name: 'Мозамбик', flag: '🇲🇿', weight: 3 },
-    { name: 'Намибия', flag: '🇳🇦', weight: 2 },
-    { name: 'Нигер', flag: '🇳🇪', weight: 2 },
-    { name: 'Северная Македония', flag: '🇲🇰', weight: 2 },
-    { name: 'Оман', flag: '🇴🇲', weight: 3 },
-    { name: 'Палестина', flag: '🇵🇸', weight: 3 },
-    { name: 'Реюньон', flag: '🇷🇪', weight: 1 },
-    { name: 'Руанда', flag: '🇷🇼', weight: 2 },
-    { name: 'Сент-Китс и Невис', flag: '🇰🇳', weight: 1 },
-    { name: 'Сан-Марино', flag: '🇸🇲', weight: 1 },
-    { name: 'Сан-Томе и Принсипи', flag: '🇸🇹', weight: 1 },
     { name: 'Сербия', flag: '🇷🇸', weight: 7 },
-    { name: 'Сомали', flag: '🇸🇴', weight: 3 },
-    { name: 'Судан', flag: '🇸🇩', weight: 5 },
-    { name: 'Сирия', flag: '🇸🇾', weight: 4 },
-    { name: 'Таджикистан', flag: '🇹🇯', weight: 4 },
-    { name: 'Того', flag: '🇹🇬', weight: 2 },
-    { name: 'Туркменистан', flag: '🇹🇲', weight: 3 },
+    { name: 'Армения', flag: '🇦🇲', weight: 3 },
+    { name: 'Грузия', flag: '🇬🇪', weight: 4 },
+    { name: 'Казахстан', flag: '🇰🇿', weight: 10 },
     { name: 'Узбекистан', flag: '🇺🇿', weight: 8 },
-    { name: 'Ватикан', flag: '🇻🇦', weight: 1 },
-    { name: 'Западная Сахара', flag: '🇪🇭', weight: 1 },
-    { name: 'Йемен', flag: '🇾🇪', weight: 3 },
-    { name: 'Замбия', flag: '🇿🇲', weight: 3 },
-    { name: 'Зимбабве', flag: '🇿🇼', weight: 3 }
   ],
   'East Asia': [
     { name: 'Япония', flag: '🇯🇵', weight: 70 },
@@ -155,11 +70,7 @@ const COUNTRIES_WEIGHTS = {
     { name: 'Парагвай', flag: '🇵🇾', weight: 8 },
     { name: 'Эквадор', flag: '🇪🇨', weight: 12 },
     { name: 'Боливия', flag: '🇧🇴', weight: 8 },
-    { name: 'Венесуэла', flag: '🇻🇪', weight: 15 },
-    { name: 'Гайана', flag: '🇬🇾', weight: 2 },
-    { name: 'Суринам', flag: '🇸🇷', weight: 2 },
-    { name: 'Французская Гвиана', flag: '🇬🇫', weight: 1 },
-    { name: 'Аруба', flag: '🇦🇼', weight: 1 }
+    { name: 'Венесуэла', flag: '🇻🇪', weight: 15 }
   ],
   NA: [
     { name: 'США', flag: '🇺🇸', weight: 90 },
@@ -173,23 +84,7 @@ const COUNTRIES_WEIGHTS = {
     { name: 'Гондурас', flag: '🇭🇳', weight: 7 },
     { name: 'Сальвадор', flag: '🇸🇻', weight: 6 },
     { name: 'Коста-Рика', flag: '🇨🇷', weight: 5 },
-    { name: 'Панама', flag: '🇵🇦', weight: 5 },
-    { name: 'Багамы', flag: '🇧🇸', weight: 2 },
-    { name: 'Тринидад и Тобаго', flag: '🇹🇹', weight: 3 },
-    { name: 'Барбадос', flag: '🇧🇧', weight: 2 },
-    { name: 'Никарагуа', flag: '🇳🇮', weight: 5 },
-    { name: 'Белиз', flag: '🇧🇿', weight: 2 },
-    { name: 'Гренада', flag: '🇬🇩', weight: 1 },
-    { name: 'Гаити', flag: '🇭🇹', weight: 5 },
-    { name: 'Бермуды', flag: '🇧🇲', weight: 1 },
-    { name: 'Антигуа и Барбуда', flag: '🇦🇬', weight: 1 },
-    { name: 'Острова Кайман', flag: '🇰🇾', weight: 1 },
-    { name: 'Монтсеррат', flag: '🇲🇸', weight: 1 },
-    { name: 'Сен-Мартен', flag: '🇲🇫', weight: 1 },
-    { name: 'Сент-Люсия', flag: '🇱🇨', weight: 1 },
-    { name: 'Сент-Винсент и Гренадины', flag: '🇻🇨', weight: 1 },
-    { name: 'Синт-Мартен', flag: '🇸🇽', weight: 1 },
-    { name: 'Британские Виргинские острова', flag: '🇻🇬', weight: 1 }
+    { name: 'Панама', flag: '🇵🇦', weight: 5 }
   ]
 };
 
@@ -226,13 +121,14 @@ function generateRandomNick() {
 // Вспомогательные функции
 function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 function pickWeighted(arr) {
+  if (!arr || arr.length === 0) return { name: 'Неизвестно', flag: '🏳️' };
   const total = arr.reduce((sum, item) => sum + item.weight, 0);
   let rand = Math.random() * total;
   for (let item of arr) {
     if (rand < item.weight) return item;
     rand -= item.weight;
   }
-  return arr[0] || { name: 'Неизвестно', flag: '🏳️' };
+  return arr[0];
 }
 
 // Расчет силы игрока
@@ -276,15 +172,25 @@ function createPlayerForTeam(countryData, targetPower) {
   if (!countryData) countryData = { name: 'Неизвестно', flag: '🏳️' };
   const skills = {};
   let role = ROLES[Math.floor(Math.random() * 3)];
-  for (let attempt = 0; attempt < 200; attempt++) {
+  let bestSkills = { ...skills };
+  let bestPower = 0;
+  for (let attempt = 0; attempt < 100; attempt++) {
     for (let skill in ROLE_COEFFS[role]) {
       skills[skill] = randomInt(100, 1000);
     }
     const power = calcPlayerPower(skills, role);
-    if (Math.abs(power - targetPower) < 5000) break;
+    if (Math.abs(power - targetPower) < 3000) {
+      bestSkills = { ...skills };
+      bestPower = power;
+      break;
+    }
+    if (Math.abs(power - targetPower) < Math.abs(bestPower - targetPower)) {
+      bestPower = power;
+      bestSkills = { ...skills };
+    }
     role = ROLES[Math.floor(Math.random() * 3)];
   }
-  const power = calcPlayerPower(skills, role);
+  const finalPower = calcPlayerPower(bestSkills, getBestRole(bestSkills));
   return {
     id: `p_${Date.now()}_${Math.random().toString(36)}`,
     nick: generateRandomNick(),
@@ -292,12 +198,12 @@ function createPlayerForTeam(countryData, targetPower) {
     country: countryData.name,
     flag: countryData.flag,
     age: randomInt(16, 28),
-    skills,
-    bestRole: getBestRole(skills),
-    power,
-    tier: getPlayerTier(power),
+    skills: bestSkills,
+    bestRole: getBestRole(bestSkills),
+    power: finalPower,
+    tier: getPlayerTier(finalPower),
     teamId: null,
-    salary: Math.floor(power / 100) + 100,
+    salary: Math.floor(finalPower / 100) + 100,
     isFreeAgent: false,
     assignedRole: null
   };
@@ -332,7 +238,6 @@ function createPredefinedTeams() {
       player.country = pd.country;
       player.flag = countryData.flag;
       player.teamId = teamId;
-      player.power = Math.min(pd.targetPower, 100000);
       allPlayers.push(player);
       team.players.push(player.id);
       totalPower += player.power;
@@ -342,7 +247,7 @@ function createPredefinedTeams() {
     teams.push(team);
   }
 
-  // 24 S-тир команды
+  // 24 команды S-тира
   addTeam('FUT Esports','EMEA', [
     {nick:'Guesti',country:'Украина',targetPower:98000,name:'Mykhaylo Chernov'},
     {nick:'Angelboy',country:'Украина',targetPower:96000,name:'Yaroslav Labunets'},
@@ -464,7 +369,12 @@ function createPredefinedTeams() {
     {nick:'Jusorange',country:'Франция',targetPower:86500}
   ]);
 
-  // Команды A-тира (25-64)
+  return teams;
+}
+
+// Добавление команд A-тира и остальных
+function generateRemainingTeams() {
+  // Добавляем A-тир команды (25-64)
   const aTeamsCount = { EMEA: 12, 'East Asia': 10, SA: 8, NA: 10 };
   for (let region of REGIONS) {
     for (let i = 0; i < aTeamsCount[region]; i++) {
@@ -493,18 +403,14 @@ function createPredefinedTeams() {
       }
       team.power = team.players.reduce((sum, pid) => sum + allPlayers.find(p => p.id === pid).power, 0);
       team.tier = getTeamTier(team.power);
-      teams.push(team);
+      allTeams.push(team);
     }
   }
-  return teams;
-}
 
-// ========== ГЕНЕРАЦИЯ ОСТАЛЬНЫХ КОМАНД ==========
-function generateRemainingTeams() {
-  const totalPerRegion = 1040;
+  // Генерация остальных команд до 1040 на регион
   REGIONS.forEach(region => {
     const existingCount = allTeams.filter(t => t.region === region).length;
-    const needed = totalPerRegion - existingCount - (playerTeam && playerTeam.region === region ? 1 : 0);
+    const needed = 1040 - existingCount - (playerTeam && playerTeam.region === region ? 1 : 0);
     for (let i = 0; i < needed; i++) {
       const teamId = `team_rnd_${region}_${i}`;
       let minPower, maxPower;
@@ -579,7 +485,8 @@ function generateAllData() {
   try {
     allTeams = [];
     allPlayers = [];
-    allTeams.push(...createPredefinedTeams());
+    const predefined = createPredefinedTeams();
+    allTeams.push(...predefined);
     generateRemainingTeams();
     generateFreeAgents();
     if (playerTeam) {
@@ -596,16 +503,16 @@ function generateAllData() {
     }
     allTeams.sort((a,b) => b.power - a.power);
     saveData();
-    console.log('Данные успешно сгенерированы');
+    console.log('Генерация завершена успешно');
     return true;
   } catch (e) {
-    console.error('Ошибка генерации данных:', e);
-    alert('Произошла ошибка при создании мира игры. Обновите страницу.');
+    console.error('Ошибка генерации:', e);
+    alert('Ошибка при создании мира. Проверьте консоль (F12) и свяжитесь с разработчиком.');
     return false;
   }
 }
 
-// ========== ОТОБРАЖЕНИЕ ==========
+// ========== UI ФУНКЦИИ ==========
 function renderDashboard() {
   if (!playerTeam) return;
   const pt = allTeams.find(t => t.isPlayer);
@@ -621,6 +528,7 @@ function renderDashboard() {
 
 function renderRoster() {
   const main = document.getElementById('roster-main');
+  if (!main) return;
   main.innerHTML = '';
   const pTeam = allTeams.find(t => t.isPlayer);
   if (!pTeam) return;
@@ -636,14 +544,16 @@ function renderRoster() {
     main.appendChild(createEmptyCard());
   }
   const reserve = document.getElementById('reserve-slot');
-  reserve.innerHTML = '';
-  const reserveId = pTeam.players[3];
-  if (reserveId) {
-    const player = allPlayers.find(p => p.id === reserveId);
-    if (player) reserve.appendChild(createPlayerCard(player));
-    else reserve.appendChild(createEmptyCard());
-  } else {
-    reserve.appendChild(createEmptyCard());
+  if (reserve) {
+    reserve.innerHTML = '';
+    const reserveId = pTeam.players[3];
+    if (reserveId) {
+      const player = allPlayers.find(p => p.id === reserveId);
+      if (player) reserve.appendChild(createPlayerCard(player));
+      else reserve.appendChild(createEmptyCard());
+    } else {
+      reserve.appendChild(createEmptyCard());
+    }
   }
 }
 
@@ -664,10 +574,10 @@ function createEmptyCard() {
   return card;
 }
 
-// Модальное окно игрока
 function showPlayerModal(player) {
   const modal = document.getElementById('player-modal');
   const content = document.getElementById('modal-player-details');
+  if (!modal || !content) return;
   const teamName = player.teamId ? (allTeams.find(t=>t.id===player.teamId)?.name||'Неизвестно') : (player.isFreeAgent?'Свободный агент':'Без команды');
   content.innerHTML = `
     <h3>${player.flag} ${player.nick}</h3>
@@ -689,14 +599,14 @@ function showPlayerModal(player) {
   modal.classList.remove('hidden');
 }
 
-// Рынок
 function refreshMarket() {
-  const search = document.getElementById('market-search').value.toLowerCase();
-  const region = document.getElementById('market-region-filter').value;
-  const role = document.getElementById('market-role-filter').value;
-  const tier = document.getElementById('market-tier-filter').value;
   const container = document.getElementById('free-agents-list');
+  if (!container) return;
   container.innerHTML = '';
+  const search = document.getElementById('market-search')?.value.toLowerCase() || '';
+  const region = document.getElementById('market-region-filter')?.value || 'all';
+  const role = document.getElementById('market-role-filter')?.value || 'all';
+  const tier = document.getElementById('market-tier-filter')?.value || 'all';
   let list = [...allPlayers];
   if (region !== 'all') list = list.filter(p => COUNTRIES_WEIGHTS[region]?.some(c => c.name === p.country));
   if (role !== 'all') list = list.filter(p => (p.assignedRole||p.bestRole) === role);
@@ -728,8 +638,9 @@ function refreshMarket() {
 }
 
 function hireFreeAgent(id) {
+  if (!playerTeam) return;
   const player = allPlayers.find(p => p.id === id);
-  if (!player || !playerTeam) return;
+  if (!player) return;
   const pTeam = allTeams.find(t => t.isPlayer);
   if (pTeam.players.length >= 4) return alert('Нет мест');
   player.isFreeAgent = false;
@@ -744,8 +655,9 @@ function hireFreeAgent(id) {
 }
 
 function buyPlayer(id) {
+  if (!playerTeam) return;
   const player = allPlayers.find(p => p.id === id);
-  if (!player || !playerTeam) return;
+  if (!player) return;
   const pTeam = allTeams.find(t => t.isPlayer);
   if (pTeam.players.length >= 4) return alert('Нет мест');
   const cost = Math.floor(player.power * 2 + 5000);
@@ -766,11 +678,11 @@ function recalcTeamPower(team) {
   team.tier = getTeamTier(team.power);
 }
 
-// Рейтинг с кликом на команду
 function refreshRatingTable() {
-  const region = document.getElementById('region-select').value;
   const tbody = document.getElementById('rating-body');
+  if (!tbody) return;
   tbody.innerHTML = '';
+  const region = document.getElementById('region-select')?.value || 'all';
   let list = allTeams;
   if (region !== 'all') list = list.filter(t => t.region === region);
   list.forEach((team, idx) => {
@@ -786,6 +698,7 @@ function refreshRatingTable() {
 function showTeamRoster(team) {
   const modal = document.getElementById('roster-modal');
   const content = document.getElementById('modal-roster-content');
+  if (!modal || !content) return;
   let html = `<h3>${team.name}</h3><div style="display:flex; gap:10px; flex-wrap:wrap;">`;
   team.players.forEach(pid => {
     const p = allPlayers.find(x => x.id === pid);
@@ -800,7 +713,7 @@ function showTeamRoster(team) {
   html += '</div>';
   content.innerHTML = html;
   content.querySelectorAll('.player-card').forEach(card => {
-    card.addEventListener('click', (e) => {
+    card.addEventListener('click', () => {
       const nick = card.querySelector('.player-nick').textContent;
       const player = allPlayers.find(p => p.nick === nick);
       if (player) showPlayerModal(player);
@@ -810,8 +723,11 @@ function showTeamRoster(team) {
 }
 
 // Закрытие модалок
-document.querySelectorAll('.close-btn').forEach(btn => {
-  btn.addEventListener('click', () => btn.closest('.modal').classList.add('hidden'));
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('close-btn')) {
+    const modal = e.target.closest('.modal');
+    if (modal) modal.classList.add('hidden');
+  }
 });
 
 // ========== ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ ==========
@@ -840,54 +756,38 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Форма создания команды
-  document.getElementById('create-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    console.log('Форма отправлена');
-    const name = document.getElementById('team-name').value.trim();
-    const tag = document.getElementById('team-tag').value.trim();
-    const region = document.getElementById('region').value;
-    const difficultyEl = document.querySelector('input[name="difficulty"]:checked');
-    const diff = difficultyEl ? difficultyEl.value : 'easy';
-    const balance = { easy: 15000, medium: 10000, hard: 5000 }[diff];
-    const avatarInput = document.getElementById('team-avatar');
-    const avatarImg = document.getElementById('avatar-img');
-    let avatarDataUrl = null;
-    if (avatarInput && avatarImg && avatarImg.src && avatarImg.src !== '' && !avatarImg.src.endsWith('#')) {
-      avatarDataUrl = avatarImg.src;
-    }
+  const createForm = document.getElementById('create-form');
+  if (createForm) {
+    createForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('team-name').value.trim();
+      const tag = document.getElementById('team-tag').value.trim();
+      const region = document.getElementById('region').value;
+      const difficultyEl = document.querySelector('input[name="difficulty"]:checked');
+      const diff = difficultyEl ? difficultyEl.value : 'easy';
+      const balance = { easy: 15000, medium: 10000, hard: 5000 }[diff];
+      const avatarImg = document.getElementById('avatar-img');
+      let avatarDataUrl = null;
+      if (avatarImg && avatarImg.src && !avatarImg.src.endsWith('#') && avatarImg.src !== '') {
+        avatarDataUrl = avatarImg.src;
+      }
+      if (!name || !tag || !region) return alert('Заполните все поля');
+      if (tag.length < 2 || tag.length > 5) return alert('Тег от 2 до 5 символов');
 
-    if (!name || !tag || !region) {
-      alert('Заполните все поля');
-      return;
-    }
-    if (tag.length < 2 || tag.length > 5) {
-      alert('Тег должен быть от 2 до 5 символов');
-      return;
-    }
-
-    playerTeam = {
-      name,
-      tag,
-      region,
-      balance,
-      avatarDataUrl,
-      date: 'Январь 2026',
-      players: []
-    };
-
-    const success = generateAllData();
-    if (!success) return;
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(playerTeam));
-    showScreen('screen-dashboard');
-    renderDashboard();
-  });
+      playerTeam = { name, tag, region, balance, avatarDataUrl, date: 'Январь 2026', players: [] };
+      if (!generateAllData()) return;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(playerTeam));
+      showScreen('screen-dashboard');
+      renderDashboard();
+    });
+  }
 
   // Навигация
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => switchView(btn.dataset.view));
   });
-  document.getElementById('btn-add-player').addEventListener('click', () => switchView('market'));
+  const addPlayerBtn = document.getElementById('btn-add-player');
+  if (addPlayerBtn) addPlayerBtn.addEventListener('click', () => switchView('market'));
 
   // Рынок фильтры
   ['market-search','market-region-filter','market-role-filter','market-tier-filter'].forEach(id => {
@@ -901,12 +801,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const regionSelect = document.getElementById('region-select');
   if (regionSelect) regionSelect.addEventListener('change', refreshRatingTable);
 
-  document.getElementById('btn-reset').addEventListener('click', () => {
-    if (confirm('Сбросить весь прогресс?')) {
-      localStorage.clear();
-      location.reload();
-    }
-  });
+  const resetBtn = document.getElementById('btn-reset');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      if (confirm('Сбросить весь прогресс?')) {
+        localStorage.clear();
+        location.reload();
+      }
+    });
+  }
 
   // Превью аватарки
   const teamAvatarInput = document.getElementById('team-avatar');
@@ -918,8 +821,8 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.onload = ev => {
           const preview = document.getElementById('avatar-preview');
           const img = document.getElementById('avatar-img');
-          img.src = ev.target.result;
-          preview.classList.remove('hidden');
+          if (img) img.src = ev.target.result;
+          if (preview) preview.classList.remove('hidden');
         };
         reader.readAsDataURL(file);
       }
@@ -940,4 +843,4 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
   const screenEl = document.getElementById(id);
   if (screenEl) screenEl.classList.remove('hidden');
-    }
+                    }
